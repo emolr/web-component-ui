@@ -1,0 +1,21 @@
+{
+  "name": "web-component-builder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "runner.js",
+  "bin": {
+    "wcb": "./bin/wcb"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.12.1",
+    "gulp": "^3.9.1"
+  },
+  "devDependencies": {
+    "@types/gulp": "^4.0.5"
+  }
+}
