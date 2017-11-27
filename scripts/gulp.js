@@ -23,7 +23,7 @@ exports.run = function(opts) {
         gulp.watch(`${cwd}/**/README.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
     })
 
-    gulp.task('watch', ['build:dev', 'init:watch']);
+    gulp.task('watch', ['init:watch']);
 
     const taskPromise = (id) => {
         return new Promise((resolve, reject) => {
@@ -49,7 +49,9 @@ exports.run = function(opts) {
 
     this.watch = async function watch(opts) {
         console.log('Started watching')
-        await taskPromise('watch')
+        taskPromise('build:dev').then(() => {
+            taskPromise('watch')
+        })
     }
 
     return this

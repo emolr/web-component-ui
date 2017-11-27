@@ -2,7 +2,6 @@
 const process = require('process');
 const program = require('commander');
 const runner = require('../runner');
-const execSync = require("child_process").execSync;
 const path = require('path');
 const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
