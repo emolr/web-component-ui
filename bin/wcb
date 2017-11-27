@@ -7,8 +7,8 @@ const path = require('path');
 const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
 const cwd = process.cwd();
-const gulp = runner.gulp.run({directory: cwd});
-console.log(process.argv.slice(2));
+const gulp = runner.gulp.run({directory: cwd})
+
 program
     .version('0.0.1')
     .option('-w, --watch', 'Keep watching for changes')
@@ -28,7 +28,7 @@ if (!program.watch) {
     } else {
         gulp.build().then(() => {
             console.log('Development build done')
-            
+
             if (program.serve) {
                 runner.bs.init(cwd);
             }

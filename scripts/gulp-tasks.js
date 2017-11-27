@@ -58,7 +58,7 @@ exports.compileDev = function compileDev() {
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
-                    includePaths: [ `${cwd}/src/**/*` ],
+                    includePaths: [ `${cwd}` ],
                     sourceMap: true,
                     sourceMapEmbed: true
                 }).css.toString('utf8');
@@ -83,7 +83,7 @@ exports.compileProduction = function compileProduction() {
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
-                    includePaths: [ `${cwd}/src/**/*` ],
+                    includePaths: [ `${cwd}` ],
                 }).css.toString('utf8');
 
                 return postcss(postcssOptions).process(css).css;
