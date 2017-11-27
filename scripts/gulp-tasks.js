@@ -21,15 +21,16 @@ const entities = new Entities();
 const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ];
 const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
+const cwd = process.cwd();
+
 exports.cleanLib = function cleanLib() {
     return del.sync([`${cwd}/dist/lib/**/*`], {
         force: true
     })
 }
 
-exports.compileDev = function compileDev(cwd) {
-    return new Promise((resolve) => {
-        gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+exports.compileDev = function compileDev() {
+    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
         .pipe(inject(gulp.src([`${cwd}/src/**/*.css`, `${cwd}/src/**/*.scss`]), {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
@@ -43,7 +44,7 @@ exports.compileDev = function compileDev(cwd) {
                     sourceMap: true,
                     sourceMapEmbed: true
                 }).css.toString('utf8');
-    
+
                 return postcss(postcssOptions).process(css).css;
             }
         }))
@@ -51,15 +52,10 @@ exports.compileDev = function compileDev(cwd) {
         .pipe(tsProject())
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(`${cwd}/dist/lib`))
-        .on('end', () => {
-            resolve()
-        })
-    })
 }
 
-exports.compileProduction = function compileProduction(cwd) {
-    return new Promise((resolve) => {
-        gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+exports.compileProduction = function compileProduction() {
+    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
         .pipe(inject(gulp.src([`${cwd}/src/**/*.css`, `${cwd}/src/**/*.scss`]), {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
@@ -77,36 +73,21 @@ exports.compileProduction = function compileProduction(cwd) {
         }))
         .pipe(tsProject())
         .pipe(gulp.dest(`${cwd}/dist/lib`))
-        .on('end', () => {
-            resolve()
-        })
-    })
 }
 
-exports.compileTests = function compileTests(cwd) {
-    return new Promise((resolve) => {
-        gulp.src(`${cwd}/src/**/*.spec.ts`)
+exports.compileTests = function compileTests() {
+    return gulp.src(`${cwd}/src/**/*.spec.ts`)
         .pipe(tsTests())
         .pipe(gulp.dest(`${cwd}/dist/test`))
-        .on('end', () => {
-            resolve()
-        })
-    })
 }
 
-exports.copyReadmeFiles = function copyReadmeFiles(cwd) {
-    return new Promise((resolve) => {
-        gulp.src(`${cwd}/src/**/README.md`)
+exports.copyReadmeFiles = function copyReadmeFiles() {
+    return gulp.src(`${cwd}/src/**/README.md`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
-        .on('end', () => {
-            resolve()
-        })
-    })
 }
 
-exports.compileDemos = function compileDemos(cwd) {
-    return new Promise((resolve) => {
-        gulp.src([`${cwd}/src/**/README.md`])
+exports.compileDemos = function compileDemos() {
+    return gulp.src([`${cwd}/src/**/README.md`])
         .pipe(markdown({
             smartypants: true,
         }))
@@ -151,6 +132,7 @@ exports.compileDemos = function compileDemos(cwd) {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
             transform: function (filePath, file) {
+                console.log(filePath)
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
@@ -161,79 +143,70 @@ exports.compileDemos = function compileDemos(cwd) {
             }
         }))
         .pipe(gulp.dest(`./dist/`))
-        .on('end', () => {
-            resolve()
-        })
-    })
 }
 
-exports.compileDemoIndex = function compileDemoIndex(cwd) {
-    return new Promise((resolve) => {
-        getComponentPaths = () => {
-            return new Promise(resolve => {
-                glob(`${cwd}/src/**/README.md`, (error, files) => {
-                    let filepaths = files.map(f => {
-                        return {
-                            path: path.resolve(f),
-                            relative: f
-                        };
-                    });
-                    resolve(filepaths);
+exports.compileDemoIndex = function compileDemoIndex() {
+    getComponentPaths = () => {
+        return new Promise(resolve => {
+            glob(`${cwd}/src/**/README.md`, (error, files) => {
+                let filepaths = files.map(f => {
+                    return {
+                        path: path.resolve(f),
+                        relative: f
+                    };
                 });
+                resolve(filepaths);
             });
-        }
+        });
+    }
 
-        parseReadme = (files) => {
-            return new Promise(resolve => {
-                let configs = files.map(file => {
-                    const fsFile = fs.readFileSync(file.path, 'utf8')
-                    const parsed = frontMatter(fsFile).attributes
-                    parsed.title = parsed.title ? parsed.title : JSON.stringify(fsFile).match(/# (.+?)\\n/)[1];
-                    let componentPath = file.relative.replace(/src/, 'lib');
-                    componentPath = componentPath.split('/');
-                    componentPath = componentPath.slice(0, componentPath.length - 1).join('/');
-                    componentPath = '/' + componentPath;
-                    parsed.demo = componentPath + '/index.html';
-                    return parsed
-                });
-                resolve(configs)
+    parseReadme = (files) => {
+        return new Promise(resolve => {
+            let configs = files.map(file => {
+                const fsFile = fs.readFileSync(file.path, 'utf8')
+                const parsed = frontMatter(fsFile).attributes
+                parsed.title = parsed.title ? parsed.title : JSON.stringify(fsFile).match(/# (.+?)\\n/)[1];
+                let componentPath = file.relative.replace(/src/, 'lib');
+                componentPath = componentPath.split('/');
+                componentPath = componentPath.slice(0, componentPath.length - 1).join('/');
+                componentPath = '/' + componentPath;
+                parsed.demo = componentPath + '/index.html';
+                return parsed
             });
-        }
+            resolve(configs)
+        });
+    }
 
-        async function handleReadmeFiles() {
-            const files = await getComponentPaths();
-            const configs = await parseReadme(files)
-            return configs;
-        }
+    async function handleReadmeFiles() {
+        const files = await getComponentPaths();
+        const configs = await parseReadme(files)
+        return configs;
+    }
 
-        handleReadmeFiles().then(res => {
-            data = {};
-            data.components = res;
-            gulp.src(`${rootPath}/templates/index.hbs`).pipe(through.obj(function(input, enc, cb) {
-                let template = handlebars.compile(input.contents.toString());
-                const result = template(data);
-                const file = input;
-                file.path = file.path.replace(/index.hbs/, 'demo.html')
-                file.contents = new Buffer(result);
-                cb(null, file);
-            }))
-            .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`]), {
-                starttag: '/* inject:{{path}} */',
-                endtag: '/* endinject */',
-                transform: function (filePath, file) {
-                    const css = sass.renderSync({
-                        data: file.contents.toString('utf8'),
-                        outputStyle: 'expanded',
-                        includePaths: [`${rootPath}/templates/styles`],
-                    }).css.toString('utf8');
-        
-                    return postcss(postcssOptions).process(css).css;
-                }
-            }))
-            .pipe(gulp.dest(`${cwd}/dist/demo`))
-            .on('end', () => {
-                resolve()
-            })
-        })
+    handleReadmeFiles().then(res => {
+        data = {};
+        data.components = res;
+        gulp.src(`${rootPath}/templates/index.hbs`).pipe(through.obj(function(input, enc, cb) {
+            let template = handlebars.compile(input.contents.toString());
+            const result = template(data);
+            const file = input;
+            file.path = file.path.replace(/index.hbs/, 'demo.html')
+            file.contents = new Buffer(result);
+            cb(null, file);
+        }))
+        .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`]), {
+            starttag: '/* inject:{{path}} */',
+            endtag: '/* endinject */',
+            transform: function (filePath, file) {
+                const css = sass.renderSync({
+                    data: file.contents.toString('utf8'),
+                    outputStyle: 'expanded',
+                    includePaths: [`${rootPath}/templates/styles`],
+                }).css.toString('utf8');
+    
+                return postcss(postcssOptions).process(css).css;
+            }
+        }))
+        .pipe(gulp.dest(`${cwd}/dist/demo`))
     })
 }

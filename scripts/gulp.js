@@ -9,12 +9,30 @@ exports.run = function(opts) {
     // Register handlebars helpers
     handlebars.registerHelper('list', handlebarsHelpers.list);
 
-    const buildDev = function(cwd) {
-        return Promise.all([
-            tasks.compileDev(cwd),
-            tasks.copyReadmeFiles(cwd),
-            tasks.compileDemos(cwd)
-        ]);
+    gulp.task('compile:dev', tasks.compileDev);
+    gulp.task('copy:readme', tasks.copyReadmeFiles);
+    gulp.task('compile:demos', tasks.compileDemos);
+
+    gulp.task('build:dev', ['compile:dev', 'copy:readme', 'compile:demos'])
+
+    // const buildDev = function(cwd) {
+    //     return Promise.all([
+    //         tasks.compileDev(cwd),
+    //         tasks.copyReadmeFiles(cwd),
+    //         tasks.compileDemos(cwd)
+    //     ]);
+    // }
+
+    const taskPromise = (id) => {
+        return new Promise((resolve, reject) => {
+            gulp.start(id, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve()
+                }
+            })
+        })
     }
     
 
@@ -23,7 +41,7 @@ exports.run = function(opts) {
             console.log('Production build started')
         } else {
             console.log('Development build started')
-            await buildDev(cwd);
+            await taskPromise('build:dev');
         }
     }
 

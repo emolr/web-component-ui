@@ -24,7 +24,7 @@
     "concurrently": "^3.5.0",
     "del": "^3.0.0",
     "glob": "^7.1.2",
-    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp": "3.9.1",
     "gulp-async-func-runner": "^0.1.10",
     "gulp-file": "^0.3.0",
     "gulp-hub": "github:frankwallis/gulp-hub#4.0",
