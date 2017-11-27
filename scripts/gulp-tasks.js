@@ -4,27 +4,45 @@ const sass = require('node-sass')
 const ts = require('gulp-typescript')
 const sourcemaps = require('gulp-sourcemaps')
 const del = require('del')
-const tsProject = ts.createProject('./tsconfig.json')
-const tsTests = ts.createProject('./tsconfig.json')
 const postcss = require('postcss')
-const autoprefixer = require('autoprefixer');
-const markdown = require('gulp-marked-json');
-const handlebars = require('handlebars');
-const through = require('through2');
-const frontMatter = require('front-matter');
-const glob = require('glob');
-const path = require('path');
-const fs = require('fs');
-const marked = require('marked');
-const Entities = require('html-entities').AllHtmlEntities;
-const entities = new Entities();
-const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ];
-const rootPath = path.resolve(process.mainModule.filename, '..', '..');
+const autoprefixer = require('autoprefixer')
+const markdown = require('gulp-marked-json')
+const handlebars = require('handlebars')
+const through = require('through2')
+const frontMatter = require('front-matter')
+const glob = require('glob')
+const path = require('path')
+const fs = require('fs')
+const marked = require('marked')
+const Entities = require('html-entities').AllHtmlEntities
+const entities = new Entities()
+const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
+const rootPath = path.resolve(process.mainModule.filename, '..', '..')
+const cwd = process.cwd()
 
-const cwd = process.cwd();
+// Set up typescript
+const tsConfigPath = `${cwd}/tsconfig.json`
+const tsProject = fs.existsSync(tsConfigPath) 
+    ? ts.createProject(tsConfigPath) 
+    : ts.createProject(`${rootPath}/configs/tsconfig.json`)
 
-exports.cleanLib = function cleanLib() {
-    return del.sync([`${cwd}/dist/lib/**/*`], {
+const tsTest = ts.createProject(`${rootPath}/configs/tsconfig.json`)
+
+// add handlebars helpers
+handlebars.registerHelper('list', function(items, options) {
+    var out = "<ul>";
+    for(var i=0, l=items.length; i<l; i++) {
+      out = out + "<li>" + options.fn(items[i]) + "</li>";
+    }
+    
+    return `<ul>${items.map(item => {
+        return `<li>${options.fn(item)}</li>`
+    }).toString().replace(',', '')}</ul>`
+});
+
+// Export tasks
+exports.clean = function clean() {
+    return del.sync([`${cwd}/dist/`], {
         force: true
     })
 }
@@ -77,7 +95,7 @@ exports.compileProduction = function compileProduction() {
 
 exports.compileTests = function compileTests() {
     return gulp.src(`${cwd}/src/**/*.spec.ts`)
-        .pipe(tsTests())
+        .pipe(tsTest())
         .pipe(gulp.dest(`${cwd}/dist/test`))
 }
 
@@ -87,7 +105,9 @@ exports.copyReadmeFiles = function copyReadmeFiles() {
 }
 
 exports.compileDemos = function compileDemos() {
-    return gulp.src([`${cwd}/src/**/README.md`])
+    return gulp.src([`${cwd}/src/**/README.md`, `${cwd}/README.md`], {
+        allowEmpty: true
+    })
         .pipe(markdown({
             smartypants: true,
         }))
@@ -117,10 +137,9 @@ exports.compileDemos = function compileDemos() {
                 let path;
                 if (input.path.match(/src/)) {
                     path = input.path.replace(/src/, 'dist/lib');
-                    console.log(path)
                 } else if (!input.relative.match(/\//)) {
                     let pathArray = input.path.split('/');
-                    pathArray.splice(pathArray.length - 1, 0, 'demo');
+                    pathArray.splice(pathArray.length - 1, 0, 'dist');
                     path = pathArray.join('/');
                 }
                 
@@ -132,7 +151,6 @@ exports.compileDemos = function compileDemos() {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
             transform: function (filePath, file) {
-                console.log(filePath)
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
@@ -150,9 +168,10 @@ exports.compileDemoIndex = function compileDemoIndex() {
         return new Promise(resolve => {
             glob(`${cwd}/src/**/README.md`, (error, files) => {
                 let filepaths = files.map(f => {
+                    const relativePath = f.split('src')[1];
                     return {
                         path: path.resolve(f),
-                        relative: f
+                        relative: relativePath
                     };
                 });
                 resolve(filepaths);
@@ -166,10 +185,10 @@ exports.compileDemoIndex = function compileDemoIndex() {
                 const fsFile = fs.readFileSync(file.path, 'utf8')
                 const parsed = frontMatter(fsFile).attributes
                 parsed.title = parsed.title ? parsed.title : JSON.stringify(fsFile).match(/# (.+?)\\n/)[1];
-                let componentPath = file.relative.replace(/src/, 'lib');
+                let componentPath = file.relative.replace(/src/, 'dist/lib');
                 componentPath = componentPath.split('/');
                 componentPath = componentPath.slice(0, componentPath.length - 1).join('/');
-                componentPath = '/' + componentPath;
+                componentPath = './' + 'lib' + componentPath;
                 parsed.demo = componentPath + '/index.html';
                 return parsed
             });
@@ -207,6 +226,6 @@ exports.compileDemoIndex = function compileDemoIndex() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(gulp.dest(`${cwd}/dist/demo`))
+        .pipe(gulp.dest(`./dist`))
     })
 }
