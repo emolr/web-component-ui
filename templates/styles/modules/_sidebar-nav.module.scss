@@ -1,0 +1,24 @@
+.sidebar-nav {
+    h2 {
+        font-size: 18px;
+        margin-top: 0px;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+            list-style-type: none;
+
+            a {
+                color: inherit;
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

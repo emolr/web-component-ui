@@ -1,0 +1,45 @@
+@import 'variables';
+
+.app {
+    height: 100%;
+    max-width: $max-width;
+    margin: auto;
+    padding-top: $app-header-height + 24px;
+}
+
+.app__layout {
+    @media all and (min-width: $medium-breakpoint) {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-content: stretch;
+        align-items: flex-start;
+    }
+}
+
+.app__layout__sidebar {
+    padding: 16px;
+    @media all and (min-width: $medium-breakpoint) {
+        position: sticky;
+        top: $app-header-height;
+        overflow: auto;
+        min-width: 240px;
+        max-width: 240px;
+        padding: 24px;
+    }
+}
+
+.app__layout__content {
+    @media all and (min-width: $medium-breakpoint) {
+        flex: 1;
+    }
+
+    &__frame {
+        width: 100%;
+        height: 0;
+        overflow: hidden;
+    }
+}

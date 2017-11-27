@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>{{title}}</title>
+        <base target="_blank"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css">
+        <style>
+            /* inject:/templates/styles/demo.scss */
+            /* endinject*/
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </head>
+    <body class="demo-page">
+        <article>
+            {{{body}}}
+        </article>
+        <script>
+            window.customElements.define('custom-element-demo', class CustomElementDemo extends HTMLElement {
+                constructor() {
+                    super()
+                    const temp = this.querySelector('template')
+                    this.attachShadow({mode: 'open'})
+                    this.shadowRoot.appendChild(temp.content.cloneNode(true))
+                    this.shadowRoot.innerHTML = this.shadowRoot.innerHTML + `<style>
+                        :host {
+                            display: block;
+                            padding: 16px 24px;
+                            background: #f6f6f6;
+                            margin-top: 28px;
+                        }
+                    </style>`;
+                }
+            });
+        </script>
+    </body>
+</html>
