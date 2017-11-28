@@ -1,8 +1,10 @@
 const gulp = require("gulp")
 const tasks = require("./gulp-tasks")
+const path = require("path")
 
 exports.run = function(opts) {
     const cwd = opts.directory
+    const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
     gulp.task('clean', tasks.clean)
     gulp.task('compile:test', tasks.compileTests)
@@ -21,6 +23,8 @@ exports.run = function(opts) {
         gulp.watch(`${cwd}/src/**/!(*.spec)*.ts`, ['compile:dev'])
         gulp.watch(`${cwd}/src/**/*.spec.ts`, ['compile:test'])
         gulp.watch(`${cwd}/src/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
+        gulp.watch(`${rootPath}/templates/**/*.hbs`, ['compile:demos', 'compile:demo-index'])
+        gulp.watch(`${rootPath}/templates/**/*.scss`, ['compile:demos', 'compile:demo-index'])
     })
 
     gulp.task('watch', ['init:watch']);

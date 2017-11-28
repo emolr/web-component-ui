@@ -3,7 +3,6 @@ const process = require('process');
 const program = require('commander');
 const runner = require('../runner');
 const path = require('path');
-const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
 const cwd = process.cwd();
 const gulp = runner.gulp.run({directory: cwd})

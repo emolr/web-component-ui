@@ -12,15 +12,11 @@
         </style>
     </head>
     <body>
-        <div class="app-header" iframe-navigation>
-            <div class="app-header__inner">
-                <a href="index.html">Index</a>
-            </div>
-        </div>
         <div class="app">
             <div class="app__layout">
                 <div class="app__layout__sidebar">
                     <div iframe-navigation class="sidebar-nav">
+                        <a href="index.html">Index</a>
                         <h2>Components</h2>
                         {{#list components}}
                             <a href="{{demo}}">{{title}}</a>
@@ -30,10 +26,9 @@
                 <div class="app__layout__content">
                     <iframe 
                         src="index.html" 
-                        class="app__layout__content__frame" 
-                        frameborder="0" 
                         id="component-view"
-                        scrolling="no"></iframe>
+                        class="app__layout__content__frame" 
+                        frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -52,16 +47,16 @@
                 frame.setAttribute('src', href);
                 return false;
             }));
+            
+        </script>
+    </body>
+</html>
 
-            const resizeIframe = (obj) => {
+{{!-- const resizeIframe = (obj) => {
                 obj.style.height = 0;
                 obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
             }
 
             frame.addEventListener('load', e => {
                 resizeIframe(e.target)
-            })
-            
-        </script>
-    </body>
-</html>
+            }) --}}

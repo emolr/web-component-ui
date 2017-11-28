@@ -151,8 +151,9 @@ exports.compileDemos = function compileDemos() {
                     pathArray.splice(pathArray.length - 1, 0, 'dist');
                     path = pathArray.join('/');
                 }
-                
+
                 file.path = path.replace(/README.json/, 'index.html')
+                console.log(file.path)
                 cb(null, file);
             }).catch(err => {console.log(err)})
         }))
@@ -165,11 +166,10 @@ exports.compileDemos = function compileDemos() {
                     outputStyle: 'expanded',
                     includePaths: [`${rootPath}/templates/styles`],
                 }).css.toString('utf8');
-
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(gulp.dest(`./dist/`))
+        .pipe(gulp.dest(`./dist`))
 }
 
 exports.compileDemoIndex = function compileDemoIndex() {
