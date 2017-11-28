@@ -12,6 +12,7 @@
             /* endinject*/
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.19/webcomponents-lite.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
     </head>
     <body class="demo-page">
@@ -23,21 +24,24 @@
                 constructor() {
                     super()
                     const temp = this.querySelector('template')
-                    this.attachShadow({mode: 'open'})
-                    this.shadowRoot.appendChild(temp.content.cloneNode(true))
-                    this.shadowRoot.innerHTML = this.shadowRoot.innerHTML + `<style>
-                        :host {
-                            display: block;
-                            padding: 16px 24px;
-                            background: #f6f6f6;
-                            margin-top: 28px;
-                        }
-                        *:not(:defined) {
-                            display: none;
-                        }
-                    </style>`;
+                    this.appendChild(temp.content.cloneNode(true))
+                }
+
+                connectedCallback() {
+                    this.style.display = 'none';
+
+                    setTimeout(() => {
+                        this.style.display = 'block';
+                    }, 100)
                 }
             });
         </script>
     </body>
 </html>
+
+{{!-- custom-element-demo {
+                    display: block;
+                    padding: 16px 24px;
+                    background: #f6f6f6;
+                    margin-top: 28px;
+                } --}}

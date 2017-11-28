@@ -35,9 +35,7 @@ handlebars.registerHelper('list', function(items, options) {
       out = out + "<li>" + options.fn(items[i]) + "</li>";
     }
     
-    return `<ul>${items.map(item => {
-        return `<li>${options.fn(item)}</li>`
-    }).toString().replace(',', '')}</ul>`
+    return out;
 });
 
 // Export tasks
