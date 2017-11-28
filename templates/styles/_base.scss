@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+*:not(:defined) {
+    display: none;
+}
+
 body, html {
     min-height: 100%;
     margin: 0;

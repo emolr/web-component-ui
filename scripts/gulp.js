@@ -17,10 +17,10 @@ exports.run = function(opts) {
     gulp.task('build:prod', ['clean', 'compile:prod', 'compile'])
 
     gulp.task('init:watch', () => {
-        gulp.watch(`${cwd}/**/*.scss`, ['compile:dev'])
-        gulp.watch(`${cwd}/**/!(*.spec)*.ts`, ['compile:dev'])
-        gulp.watch(`${cwd}/**/*.spec.ts`, ['compile:test'])
-        gulp.watch(`${cwd}/**/README.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
+        gulp.watch(`${cwd}/src/**/*.scss`, ['compile:dev'])
+        gulp.watch(`${cwd}/src/**/!(*.spec)*.ts`, ['compile:dev'])
+        gulp.watch(`${cwd}/src/**/*.spec.ts`, ['compile:test'])
+        gulp.watch(`${cwd}/src/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
     })
 
     gulp.task('watch', ['init:watch']);
@@ -40,17 +40,25 @@ exports.run = function(opts) {
     this.build = async function build(opts) {
         if (typeof opts !== 'undefined' && opts.production) {
             console.log('Production build started')
-            await taskPromise('build:prod')
+            await taskPromise('build:prod').catch(err => {
+                console.log(err)
+            })
         } else {
             console.log('Development build started')
-            await taskPromise('build:dev')
+            await taskPromise('build:dev').catch(err => {
+                console.log(err)
+            })
         }
     }
 
     this.watch = async function watch(opts) {
         console.log('Started watching')
         taskPromise('build:dev').then(() => {
-            taskPromise('watch')
+            taskPromise('watch').catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {
+            console.log(err)
         })
     }
 

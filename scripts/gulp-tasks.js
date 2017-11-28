@@ -55,13 +55,24 @@ exports.compileDev = function compileDev() {
             relative: true,
             removeTags: true,
             transform: (filePath, file) => {
-                const css = sass.renderSync({
-                    data: file.contents.toString('utf8'),
+                const content = file.contents.toString('utf8');
+                let css;
+
+                if (!content.length) {
+                    return '';
+                }
+
+                try {
+                css = sass.renderSync({
+                    data: content,
                     outputStyle: 'expanded',
                     includePaths: [ `${cwd}` ],
                     sourceMap: true,
                     sourceMapEmbed: true
                 }).css.toString('utf8');
+                } catch(err) {
+                    console.log(err)
+                }
 
                 return postcss(postcssOptions).process(css).css;
             }

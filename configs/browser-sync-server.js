@@ -4,6 +4,10 @@ exports.init = function(cwd) {
     browserSync.init({
         server: `${cwd}/dist`,
         index: `demo.html`,
-        files: [`${cwd}/dist/**/*`]
+        files: [`${cwd}/dist/**/*.js`, `${cwd}/dist/**/*.html`],
+        notify: false,
+        reloadDebounce: 500
+    }, (err) => {
+        console.log(err)
     })
 }
