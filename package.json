@@ -1,7 +1,7 @@
 {
   "name": "web-component-UI",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "A web component build tool and styleguide generator CLI tool.",
   "main": "runner.js",
   "bin": {
     "wui": "./bin/wui"
@@ -9,8 +9,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": { 
+    "name" : "Emil Rune Møller", 
+    "email" : "emilrmoeller@gmail.com", 
+    "url" : "https://twitter.com/emilrmoeller"
+  },
+  "repository" :{ 
+    "type" : "git", 
+    "url" : "https://github.com/emolr/web-component-ui"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/emolr/web-component-ui",
+  "bugs": "https://github.com/emolr/web-component-ui/issues",
   "dependencies": {
     "commander": "^2.12.1",
     "autoprefixer": "^7.1.5",
