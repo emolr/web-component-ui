@@ -7,9 +7,9 @@ This is a build tool that enables the possibilities of building web components i
 
 ## Why did i start this project? 
 
-Because I love ideas behind web components, it has the prospect of being the way to build long lasting and maintainable UI, and with frameworks like skateJS, Polymer and StencilJS it's seems to be going really well for web components.
+Because I love the idea behind web components, it holds the prospect of being the way to build long lasting and maintainable UI, and with frameworks like skateJS, Polymer and StencilJS it's seems to be going really well for web components.
 
-All frameworks adds a level of technical depth, and this can be worth it depending on the project, where `wui` is a compiler tool that leaves no other than the code you choose.
+But all frameworks adds a level of technical depth, and this can be worth it depending on the project, where `wui` is a compiler tool that leaves no other than the code you choose.
 
 Also by not using any framework `wui` is a great companion for writing AMP style webcomponents that are built using semantic markup that won't need a nodeJS Server Side Renderer. This means that the components can be built for any type of website while being crawlable for search engine bots, but this is up to the way your write your components, this tool just compiles them.
 
