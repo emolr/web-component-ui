@@ -1,5 +1,5 @@
 {
-  "name": "web-component-UI",
+  "name": "web-component-ui",
   "version": "0.0.1",
   "description": "A web component build tool and styleguide generator CLI tool.",
   "main": "runner.js",
@@ -9,14 +9,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": { 
-    "name" : "Emil Rune Møller", 
-    "email" : "emilrmoeller@gmail.com", 
-    "url" : "https://twitter.com/emilrmoeller"
+  "author": {
+    "name": "Emil Rune Møller",
+    "email": "emilrmoeller@gmail.com",
+    "url": "https://twitter.com/emilrmoeller"
   },
-  "repository" :{ 
-    "type" : "git", 
-    "url" : "https://github.com/emolr/web-component-ui"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emolr/web-component-ui"
   },
   "license": "MIT",
   "homepage": "https://github.com/emolr/web-component-ui",

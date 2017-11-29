@@ -19,6 +19,8 @@ const entities = new Entities()
 const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
+const cwdRelative = cwd.split('/')
+const dots = cwdRelative.map((rel, i) => { return '..'; }).slice(0, cwdRelative.length - 1)
 
 // Set up typescript
 const tsConfigPath = `${cwd}/tsconfig.json`
@@ -164,12 +166,14 @@ exports.compileDemos = function compileDemos() {
         .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`]), {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
+            ignorePath: `/${dots.join('/')}${rootPath}`,
             transform: function (filePath, file) {
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
                     includePaths: [`${rootPath}/templates/styles`],
                 }).css.toString('utf8');
+
                 return postcss(postcssOptions).process(css).css;
             }
         }))
@@ -184,7 +188,7 @@ exports.compileDemoIndex = function compileDemoIndex() {
                     const relativePath = f.split('src')[1];
                     return {
                         path: path.resolve(f),
-                        relative: 'lib' + relativePath
+                        relative: '/lib' + relativePath
                     };
                 });
                 resolve(filepaths);
@@ -224,7 +228,7 @@ exports.compileDemoIndex = function compileDemoIndex() {
 
                 let componentPath = file.relative.replace(/src/, 'dist/lib')
                 componentPath = componentPath.replace(/.md/, '.html')
-                componentPath = './' + componentPath;
+                componentPath = '.' + componentPath;
                 parsed.demo = componentPath;
                 return parsed
             });
@@ -262,13 +266,14 @@ exports.compileDemoIndex = function compileDemoIndex() {
         .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`]), {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
+            relative: true,
             transform: function (filePath, file) {
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
                     outputStyle: 'expanded',
                     includePaths: [`${rootPath}/templates/styles`],
                 }).css.toString('utf8');
-    
+
                 return postcss(postcssOptions).process(css).css;
             }
         }))
