@@ -153,7 +153,6 @@ exports.compileDemos = function compileDemos() {
                 }
 
                 file.path = path.replace(/README.json/, 'index.html')
-                console.log(file.path)
                 cb(null, file);
             }).catch(err => {console.log(err)})
         }))
