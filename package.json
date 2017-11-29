@@ -1,10 +1,10 @@
 {
-  "name": "web-component-builder",
+  "name": "web-component-UI",
   "version": "1.0.0",
   "description": "",
   "main": "runner.js",
   "bin": {
-    "wcb": "./bin/wcb"
+    "wui": "./bin/wui"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,9 +13,23 @@
   "license": "ISC",
   "dependencies": {
     "commander": "^2.12.1",
-    "gulp": "^3.9.1"
-  },
-  "devDependencies": {
-    "@types/gulp": "^4.0.5"
+    "autoprefixer": "^7.1.5",
+    "browser-sync": "^2.18.13",
+    "concurrently": "^3.5.0",
+    "del": "^3.0.0",
+    "glob": "^7.1.2",
+    "gulp": "3.9.1",
+    "gulp-inject": "^4.3.0",
+    "gulp-marked-json": "^1.0.0",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-typescript": "^3.2.2",
+    "handlebars": "^4.0.11",
+    "html-entities": "^1.2.1",
+    "marked": "^0.3.6",
+    "node-sass": "^4.5.3",
+    "postcss": "^6.0.13",
+    "through2": "^2.0.3",
+    "typescript": "^2.5.3",
+    "webcomponentsjs": "^1.0.2"
   }
 }

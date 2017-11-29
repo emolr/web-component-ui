@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css">
+        <style>
+            /* inject:/../cli-runner/templates/styles/demo.scss */
+            /* endinject*/
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div class="app__layout">
+                <div class="app__layout__sidebar">
+                    <div iframe-navigation class="sidebar-nav">
+                        <a href="index.html">Index</a>
+                        <h2>Components</h2>
+                        {{#list components}}
+                            <a href="{{demo}}">{{title}}</a>
+                        {{/list}}
+                    </div>
+                </div>
+                <div class="app__layout__content">
+                    <iframe 
+                        src="index.html" 
+                        id="component-view"
+                        class="app__layout__content__frame" 
+                        frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+        <script>
+            
+            let frame = document.querySelector('#component-view');
+            let navigations = document.querySelectorAll('[iframe-navigation]');
+            
+            navigations.forEach(nav => nav.addEventListener('click', e => {
+                e.preventDefault();
+                const target = e.target;
+                if (!target.hasAttribute('href')) {
+                    return
+                }
+                const href = target.getAttribute('href');
+                frame.setAttribute('src', href);
+                return false;
+            }));
+            
+        </script>
+    </body>
+</html>
+
+{{!-- const resizeIframe = (obj) => {
+                obj.style.height = 0;
+                obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+            }
+
+            frame.addEventListener('load', e => {
+                resizeIframe(e.target)
+            }) --}}
