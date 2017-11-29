@@ -104,7 +104,7 @@ And write what you would like (in markdown).
 
 To create a inline demo you need to modify the `/src/element/readme.md` file and add:
 
-INSERT CODE IMAGE
+![alt text](http://res.cloudinary.com/histudios/image/upload/v1511939930/Screen_Shot_2017-11-29_at_08.18.24_qio7iy.png "inline demo snippet")
 
 You can create as many inline demo's as you like in a single `readme.md` file.
 
