@@ -1,10 +1,10 @@
 {
-  "name": "web-component-builder",
+  "name": "web-component-UI",
   "version": "1.0.0",
   "description": "",
   "main": "runner.js",
   "bin": {
-    "wcb": "./bin/wcb"
+    "wui": "./bin/wui"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
