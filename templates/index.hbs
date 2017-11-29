@@ -16,16 +16,25 @@
             <div class="app__layout">
                 <div class="app__layout__sidebar">
                     <div iframe-navigation class="sidebar-nav">
-                        <a href="index.html">Index</a>
-                        <h2>Components</h2>
-                        {{#list components}}
-                            <a href="{{demo}}">{{title}}</a>
-                        {{/list}}
+                        <a href="readme.html">Index</a>
+                        <div>
+                            <b>Docs</b>
+                            {{#list docs}}
+                                <a href="{{demo}}">{{title}}</a>
+                            {{/list}}
+                        </div>
+                        <br><br>
+                        <div>
+                            <b>Components</b>
+                            {{#list components}}
+                                <a href="{{demo}}">{{title}}</a>
+                            {{/list}}
+                        </div>
                     </div>
                 </div>
                 <div class="app__layout__content">
                     <iframe 
-                        src="index.html" 
+                        src="readme.html" 
                         id="component-view"
                         class="app__layout__content__frame" 
                         frameborder="0"></iframe>

@@ -109,12 +109,12 @@ exports.compileTests = function compileTests() {
 }
 
 exports.copyReadmeFiles = function copyReadmeFiles() {
-    return gulp.src(`${cwd}/src/**/README.md`)
+    return gulp.src(`${cwd}/src/**/readme.md`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
 }
 
 exports.compileDemos = function compileDemos() {
-    return gulp.src([`${cwd}/src/**/README.md`, `${cwd}/README.md`], {
+    return gulp.src([`${cwd}/src/**/*.md`, `${cwd}/docs/**/*.md`, `${cwd}/readme.md`], {
         allowEmpty: true
     })
         .pipe(markdown({
@@ -144,15 +144,20 @@ exports.compileDemos = function compileDemos() {
             compileHandlebars.then(res => {
                 let file = res;
                 let path;
+                let filename;
                 if (input.path.match(/src/)) {
                     path = input.path.replace(/src/, 'dist/lib');
+                } else if (input.path.match(/docs/)) {
+                    path = input.path.replace(/docs/, 'dist/docs');
                 } else if (!input.relative.match(/\//)) {
-                    let pathArray = input.path.split('/');
+                    pathArray = input.path.split('/');
                     pathArray.splice(pathArray.length - 1, 0, 'dist');
+                    fileName = pathArray[pathArray.length - 1];
                     path = pathArray.join('/');
                 }
 
-                file.path = path.replace(/README.json/, 'index.html')
+                file.path = path.replace(/.json/, '.html')
+
                 cb(null, file);
             }).catch(err => {console.log(err)})
         }))
@@ -174,9 +179,24 @@ exports.compileDemos = function compileDemos() {
 exports.compileDemoIndex = function compileDemoIndex() {
     getComponentPaths = () => {
         return new Promise(resolve => {
-            glob(`${cwd}/src/**/README.md`, (error, files) => {
+            glob(`${cwd}/src/**/*.md`, (error, files) => {
                 let filepaths = files.map(f => {
                     const relativePath = f.split('src')[1];
+                    return {
+                        path: path.resolve(f),
+                        relative: 'lib' + relativePath
+                    };
+                });
+                resolve(filepaths);
+            });
+        });
+    }
+
+    getDocsPaths = () => {
+        return new Promise(resolve => {
+            glob(`${cwd}/docs/**/*.md`, (error, files) => {
+                let filepaths = files.map(f => {
+                    const relativePath = f.split(cwd)[1];
                     return {
                         path: path.resolve(f),
                         relative: relativePath
@@ -192,12 +212,20 @@ exports.compileDemoIndex = function compileDemoIndex() {
             let configs = files.map(file => {
                 const fsFile = fs.readFileSync(file.path, 'utf8')
                 const parsed = frontMatter(fsFile).attributes
-                parsed.title = parsed.title ? parsed.title : JSON.stringify(fsFile).match(/# (.+?)\\n/)[1];
-                let componentPath = file.relative.replace(/src/, 'dist/lib');
-                componentPath = componentPath.split('/');
-                componentPath = componentPath.slice(0, componentPath.length - 1).join('/');
-                componentPath = './' + 'lib' + componentPath;
-                parsed.demo = componentPath + '/index.html';
+                const matchedTitle = JSON.stringify(fsFile).match(/# (.+?)\\n/);
+
+                if (!parsed.title && matchedTitle) {
+                    parsed.title = matchedTitle[1];
+                } else if (!parsed.title && !matchedTitle) {
+                    parsed.title = JSON.stringify(fsFile).match(/# (.+?.*)/)[1].replace(/.$/, '')
+                } else if (parsed.title){
+                    parsed.title = parsed.title;
+                }
+
+                let componentPath = file.relative.replace(/src/, 'dist/lib')
+                componentPath = componentPath.replace(/.md/, '.html')
+                componentPath = './' + componentPath;
+                parsed.demo = componentPath;
                 return parsed
             });
             resolve(configs)
@@ -205,14 +233,24 @@ exports.compileDemoIndex = function compileDemoIndex() {
     }
 
     async function handleReadmeFiles() {
-        const files = await getComponentPaths();
-        const configs = await parseReadme(files)
-        return configs;
+        const components = await getComponentPaths();
+        const docs = await getDocsPaths();
+        const componentConfigs = await parseReadme(components)
+        const docsConfigs = await parseReadme(docs).catch(err => {
+            console.log(err)
+        })
+        
+        return {
+            components: componentConfigs,
+            docs: docsConfigs
+        };
     }
 
     handleReadmeFiles().then(res => {
         data = {};
-        data.components = res;
+        data.components = res.components;
+        data.docs = res.docs;
+
         gulp.src(`${rootPath}/templates/index.hbs`).pipe(through.obj(function(input, enc, cb) {
             let template = handlebars.compile(input.contents.toString());
             const result = template(data);
