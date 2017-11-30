@@ -180,12 +180,13 @@ exports.compileDemos = function compileDemos() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(through.obj((a, b, c) => {
-            fs.writeFile(a.path, a.contents, (err) => {
+        .pipe(through.obj((input, enc, cb) => {
+            fs.writeFile(input.path, input.contents, (err) => {
                 if (err) {
                     console.log(err);
                 }
             });
+            cb(null, input)
         }))
 }
 
