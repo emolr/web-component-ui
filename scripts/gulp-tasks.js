@@ -110,7 +110,7 @@ exports.compileTests = function compileTests() {
 }
 
 exports.copyReadmeFiles = function copyReadmeFiles() {
-    return gulp.src(`${cwd}/src/**/readme.md`)
+    return gulp.src(`${cwd}/src/**/*.md`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
 }
 
