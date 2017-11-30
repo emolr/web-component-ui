@@ -20,7 +20,6 @@ const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const cwdRelative = cwd.split('/')
-const dots = cwdRelative.map((rel, i) => { return '..'; }).slice(0, cwdRelative.length - 1)
 
 // Set up typescript
 const tsConfigPath = `${cwd}/tsconfig.json`
@@ -123,6 +122,7 @@ exports.compileDemos = function compileDemos() {
             smartypants: true,
         }))
         .pipe(through.obj(function(input, enc, cb) {
+            const srcFile = input;
             const replacer = (match, p1, p2, p3, p4, p5, p6) => {
                 return `
                     ${p1}${entities.decode(p6)}${p3}
@@ -139,34 +139,38 @@ exports.compileDemos = function compileDemos() {
                     const result = template(parsedMarkdown);
                     const file = templateInput;
                     file.contents = new Buffer(result);
+                    // file.path = 'lol';
                     resolve(file);
                 }));
             })
 
             compileHandlebars.then(res => {
                 let file = res;
-                let path;
+                let newPath;
                 let filename;
+
                 if (input.path.match(/src/)) {
-                    path = input.path.replace(/src/, 'dist/lib');
+                    newPath = input.path.replace(/src/, 'dist/lib');
                 } else if (input.path.match(/docs/)) {
-                    path = input.path.replace(/docs/, 'dist/docs');
+                    newPath = input.path.replace(/docs/, 'dist/docs');
                 } else if (!input.relative.match(/\//)) {
                     pathArray = input.path.split('/');
                     pathArray.splice(pathArray.length - 1, 0, 'dist');
                     fileName = pathArray[pathArray.length - 1];
-                    path = pathArray.join('/');
+                    newPath = pathArray.join('/');
                 }
-
-                file.path = path.replace(/.json/, '.html')
+                
+                newPath = newPath.replace(/.json/, '.html')
+                file.path = newPath;
 
                 cb(null, file);
             }).catch(err => {console.log(err)})
         }))
-        .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`]), {
+        .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`], {
+            cwd: `${rootPath}/templates/`
+        }), {
             starttag: '/* inject:{{path}} */',
             endtag: '/* endinject */',
-            ignorePath: `/${dots.join('/')}${rootPath}`,
             transform: function (filePath, file) {
                 const css = sass.renderSync({
                     data: file.contents.toString('utf8'),
@@ -177,7 +181,7 @@ exports.compileDemos = function compileDemos() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(gulp.dest(`./dist`))
+        .pipe(gulp.dest(`${cwd}/dist/`))
 }
 
 exports.compileDemoIndex = function compileDemoIndex() {
@@ -277,6 +281,6 @@ exports.compileDemoIndex = function compileDemoIndex() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(gulp.dest(`./dist`))
+        .pipe(gulp.dest(`${cwd}/dist`))
     })
 }
