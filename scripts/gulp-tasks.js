@@ -139,7 +139,6 @@ exports.compileDemos = function compileDemos() {
                     const result = template(parsedMarkdown);
                     const file = templateInput;
                     file.contents = new Buffer(result);
-                    // file.path = 'lol';
                     resolve(file);
                 }));
             })
@@ -181,7 +180,13 @@ exports.compileDemos = function compileDemos() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(gulp.dest(`${cwd}/dist/`))
+        .pipe(through.obj((a, b, c) => {
+            fs.writeFile(a.path, a.contents, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        }))
 }
 
 exports.compileDemoIndex = function compileDemoIndex() {
