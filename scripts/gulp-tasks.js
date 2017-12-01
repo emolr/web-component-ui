@@ -12,7 +12,7 @@ const through = require('through2')
 const frontMatter = require('front-matter')
 const glob = require('glob')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const marked = require('marked')
 const Entities = require('html-entities').AllHtmlEntities
 const entities = new Entities()
@@ -125,8 +125,10 @@ exports.compileDemos = function compileDemos() {
             const srcFile = input;
             const replacer = (match, p1, p2, p3, p4, p5, p6) => {
                 return `
-                    ${p1}${entities.decode(p6)}${p3}
-                    <code class="lang-html"><pre>${p6}</code></pre>
+                ${p1}${entities.decode(p6)}${p3}
+                <pre>
+                    <code class="lang-html">${p6}</code>
+                </pre>
                 `
             };
             const data = input.contents.toString();
@@ -151,6 +153,7 @@ exports.compileDemos = function compileDemos() {
                 if (input.path.match(/src/)) {
                     newPath = input.path.replace(/src/, 'dist/lib');
                 } else if (input.path.match(/docs/)) {
+                    fs.ensureDirSync(`${cwd}/dist/docs`)
                     newPath = input.path.replace(/docs/, 'dist/docs');
                 } else if (!input.relative.match(/\//)) {
                     pathArray = input.path.split('/');

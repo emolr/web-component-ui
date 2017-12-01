@@ -1,0 +1,14 @@
+@import 'variables';
+
+custom-element-demo {
+    display: block;
+    margin: 0 auto 0 auto;
+    max-width: $max-text-width;
+    padding: 16px;
+
+    & > div {
+        background: var(--gray-10, #fafafa);
+        padding: 24px;
+        border-radius: 4px;
+    }
+}

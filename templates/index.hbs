@@ -16,19 +16,20 @@
             <div class="app__layout">
                 <div class="app__layout__sidebar">
                     <div iframe-navigation class="sidebar-nav">
-                        <a href="readme.html">Index</a>
+                        <a href="readme.html" class="sidebar-nav__title">DNA Design System</a>
                         <div>
-                            <b>Docs</b>
                             {{#list docs}}
                                 <a href="{{demo}}">{{title}}</a>
                             {{/list}}
                         </div>
                         <br><br>
                         <div>
-                            <b>Components</b>
-                            {{#list components}}
-                                <a href="{{demo}}">{{title}}</a>
-                            {{/list}}
+                            <h2>Components</h2>
+                            <div class="sidebar-nav__nested">
+                                {{#list components}}
+                                    <a href="{{demo}}">{{title}}</a>
+                                {{/list}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -53,6 +54,12 @@
                     return
                 }
                 const href = target.getAttribute('href');
+                const activeClass = 'sidebar-nav__is-active';
+                const active = document.querySelector(`.${activeClass}`);
+                if (active) {
+                    active.classList.remove(activeClass)
+                }
+                target.classList.add(activeClass);
                 frame.setAttribute('src', href);
                 return false;
             }));

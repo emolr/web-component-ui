@@ -24,7 +24,9 @@
                 constructor() {
                     super()
                     const temp = this.querySelector('template')
-                    this.appendChild(temp.content.cloneNode(true))
+                    const inner = document.createElement('div');
+                    inner.appendChild(temp.content.cloneNode(true))
+                    this.appendChild(inner);
                 }
 
                 connectedCallback() {

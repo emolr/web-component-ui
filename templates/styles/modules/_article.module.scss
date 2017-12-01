@@ -1,0 +1,203 @@
+@import 'variables';
+$max-text-width: 650px !default;
+$content-padding: 0 16px !default;
+
+article {
+    color: var(--grey-90, #000);
+
+    // Typgraphy
+
+    * + custom-element-demo {
+        margin-top: 62px;
+    }
+
+    a, a:visited {
+        color: #0060df;
+    }
+
+    h1 {
+        font-size: $type-display-20-size;
+        font-weight: $type-display-20-weight;
+        margin: 0 auto 2rem;
+        max-width: $max-text-width;
+        padding: $content-padding;
+    }
+
+    h2 {
+        font-size: $type-title-30-size;
+        font-weight: $type-title-30-weight;
+        margin: 3rem auto 1rem;
+        max-width: $max-text-width;
+        padding: $content-padding;
+    }
+    
+    h3 {
+        font-size: $type-title-20-size;
+        font-weight: $type-title-20-weight;
+        margin: 2rem auto 1rem;
+        max-width: $max-text-width;
+        padding: $content-padding;
+    }
+    
+    h4 {
+        font-size: $type-title-10-size;
+        font-weight: $type-title-10-weight;
+        max-width: $max-text-width;
+        margin: 2rem auto 1rem;
+        padding: $content-padding;
+    }
+
+    p {
+        font-size: $type-body-20-size;
+        font-weight: $type-body-20-weight;
+        max-width: $max-text-width;
+        margin: 0 auto 1rem;
+        padding: $content-padding;
+        line-height: 1.5;
+    }
+
+    p small {
+        font-size: $type-body-10-size;
+        font-weight: $type-body-10-weight;
+        max-width: $max-text-width;
+        margin: 0 auto 1rem;
+        padding: $content-padding;
+    }
+
+    figure {
+        max-width: $max-text-width;
+        margin: 0 auto 1rem;
+    }
+
+    figcaption {
+        font-size: $type-caption-20-size;
+        font-weight: $type-caption-20-weight;
+        max-width: $max-text-width;
+    }
+
+    blockquote {
+        max-width: $max-text-width;
+        margin: 0 auto 1rem;
+        color: var(--grey-50, #aaa);
+        padding: $content-padding;
+
+        p {
+            border-left: 2px solid var(--grey-50, #aaa);
+            padding: 0 0 0 16px;
+            margin: 0;
+        }
+    }
+
+    img {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    ul, ol {
+        max-width: $max-text-width;
+        padding: 0 16px 1rem 48px;
+        margin: 0 auto;
+
+        li {
+            line-height: 1.6;
+
+            ul, ol {
+                padding-left: 18px;
+            }
+        }
+    }
+
+    hr {
+        border: none;
+        border-bottom: 1px solid var(--grey-30, #bbb);
+        max-width: $max-text-width - 32px;
+        margin: 2rem auto;
+
+        & + * {
+            margin-top: 0;
+        }
+    }
+
+
+    // Code
+
+    code {
+        font-family: "Source Code Pro", monospace;
+    }
+
+    pre {
+        max-width: $max-text-width;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    pre code, .hljs {
+        font-weight: 500;
+        display: block;
+        overflow-x: auto;
+        word-wrap: normal;
+        white-space: pre;
+        box-sizing: border-box;
+        font-size: 14px;
+        line-height: 20px;
+        word-break: break-all;
+        word-wrap: break-word;
+        display: block;
+        white-space: pre-wrap;
+        margin: 0;
+        padding: 16px 24px;
+        border-radius: 4px;
+        color: #abb2bf;
+        background-color: #16161d;
+    }
+
+    :not(pre) > * > code, 
+    :not(pre) > code {
+        background-color: rgba(220,220,220,.5);
+        border-radius: 2px;
+        padding: 0 2px;
+    }
+
+    // Table
+
+    table {
+        max-width: $max-text-width - 32px;
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        overflow: auto;
+
+        thead {
+            text-align: left;
+            th {
+                font-size: $type-title-10-size;
+                font-weight: 500;
+                text-transform: uppercase;
+                padding: 8px 16px 8px 0;
+                vertical-align: top;
+
+                &:last-of-type {
+                    padding-right: 0;
+                }
+            }
+        }
+
+        tbody {
+            td {
+                padding: 8px 16px 8px 0;
+                vertical-align: top;
+
+                &:last-of-type {
+                    padding-right: 0;
+                }
+            }
+        }
+    }
+
+    // Highlight
+
+    .hljs-name {
+        color: #c678dd;
+    }
+}

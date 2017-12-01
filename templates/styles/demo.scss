@@ -1,5 +1,7 @@
+@import 'custom-properties';
 @import 'base';
 @import 'layouts/app.layout';
 @import 'layouts/demo-page.layout';
 @import 'modules/sidebar-nav.module';
-@import 'modules/app-header.module';
+@import 'modules/article.module';
+@import 'modules/custom-element-demo.module';

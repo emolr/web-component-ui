@@ -22,7 +22,7 @@ exports.run = function(opts) {
         gulp.watch(`${cwd}/src/**/*.scss`, ['compile:dev'])
         gulp.watch(`${cwd}/src/**/!(*.spec)*.ts`, ['compile:dev'])
         gulp.watch(`${cwd}/src/**/*.spec.ts`, ['compile:test'])
-        gulp.watch(`${cwd}/src/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
+        gulp.watch(`${cwd}/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
         gulp.watch(`${rootPath}/templates/**/*.hbs`, ['compile:demos', 'compile:demo-index'])
         gulp.watch(`${rootPath}/templates/**/*.scss`, ['compile:demos', 'compile:demo-index'])
     })
@@ -49,7 +49,7 @@ exports.run = function(opts) {
             })
         } else {
             console.log('Development build started')
-            await taskPromise('build:dev').catch(err => {
+            await taskPromise('build:dev').then(() => {}).catch(err => {
                 console.log(err)
             })
         }

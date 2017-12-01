@@ -1,7 +1,12 @@
+$nav-item-padding: 8px 0 !default;
+$nav-hover-color: rgb(0, 96, 223) !default;
+
 .sidebar-nav {
     h2 {
-        font-size: 18px;
-        margin-top: 0px;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+        padding: $nav-item-padding;
     }
 
     ul {
@@ -11,14 +16,36 @@
         li {
             list-style-type: none;
 
-            a {
+            a { 
+                display: block;
+                padding: $nav-item-padding;
                 color: inherit;
                 text-decoration: none;
+                font-size: 15px;
 
                 &:hover {
-                    text-decoration: underline;
+                    color: $nav-hover-color;
+                }
+
+                &.sidebar-nav__is-active {
+                    color: $nav-hover-color;
                 }
             }
         }
+    }
+}
+
+.sidebar-nav__title {
+    display: block;
+    font-size: 17px;
+    margin-bottom: 24px;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+}
+
+.sidebar-nav__nested {
+    ul > li > a {
+        padding-left: 16px;
     }
 }
