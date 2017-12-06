@@ -1,7 +1,9 @@
 const gulp = require("gulp")
+const rollup = require('rollup');
+const rollupTypescript = require('rollup-plugin-typescript');
 const inject = require('gulp-inject')
 const sass = require('node-sass')
-const ts = require('gulp-typescript')
+const typescript = require('typescript');
 const sourcemaps = require('gulp-sourcemaps')
 const del = require('del')
 const postcss = require('postcss')
@@ -76,10 +78,26 @@ exports.compileDev = function compileDev() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(sourcemaps.init())
-        .pipe(tsProject())
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(`${cwd}/dist/lib`))
+        .pipe(through.obj((input, enc, cb) => {
+             let tempPath = input.path.replace(/src/, 'dist/lib');
+             let newPath = tempPath.replace(/\.ts/, '.js');
+            
+            const bundle = rollup.rollup({
+                input: input.path,
+                plugins: [
+                    rollupTypescript({
+                        typescript: typescript
+                    })
+                ]
+            }).then(res => { 
+                res.write({
+                    file: newPath,
+                    format: 'es',
+                    sourcemaps: true
+                });
+                cb(null, input)
+            });
+        }))
 }
 
 exports.compileProduction = function compileProduction() {
@@ -99,8 +117,26 @@ exports.compileProduction = function compileProduction() {
                 return postcss(postcssOptions).process(css).css;
             }
         }))
-        .pipe(tsProject())
-        .pipe(gulp.dest(`${cwd}/dist/lib`))
+        .pipe(through.obj((input, enc, cb) => {
+            let tempPath = input.path.replace(/src/, 'dist/lib');
+            let newPath = tempPath.replace(/\.ts/, '.js');
+           
+           const bundle = rollup.rollup({
+               input: input.path,
+               plugins: [
+                   rollupTypescript({
+                       typescript: typescript
+                   })
+               ]
+           }).then(res => { 
+               res.write({
+                   file: newPath,
+                   format: 'es',
+                   sourcemaps: false
+               });
+               cb(null, input)
+           });
+       }))
 }
 
 exports.compileTests = function compileTests() {
