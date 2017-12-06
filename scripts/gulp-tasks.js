@@ -23,14 +23,6 @@ const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const cwdRelative = cwd.split('/')
 
-// Set up typescript
-const tsConfigPath = `${cwd}/tsconfig.json`
-const tsProject = fs.existsSync(tsConfigPath) 
-    ? ts.createProject(tsConfigPath) 
-    : ts.createProject(`${rootPath}/configs/tsconfig.json`)
-
-const tsTest = ts.createProject(`${rootPath}/configs/tsconfig.json`)
-
 // add handlebars helpers
 handlebars.registerHelper('list', function(items, options) {
     var out = "<ul>";
@@ -48,39 +40,39 @@ exports.clean = function clean() {
     })
 }
 
-exports.compileDev = function compileDev() {
+exports.compile = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
-        .pipe(inject(gulp.src([`${cwd}/src/**/*.css`, `${cwd}/src/**/*.scss`]), {
-            starttag: '/* inject:{{path}} */',
-            endtag: '/* endinject */',
-            relative: true,
-            removeTags: true,
-            transform: (filePath, file) => {
-                const content = file.contents.toString('utf8');
-                let css;
+        .pipe(through.obj((input, enc, cb) => {
+            let file = input;
+            const dir = path.dirname(input.path);
+            let tempPath = input.path.replace(/src/, 'dist/lib');
+            let newPath = tempPath.replace(/\.ts/, '.js');
 
-                if (!content.length) {
-                    return '';
-                }
-
+            const replaceStyle = (match, p1) => {
+                let styleFile = '';
                 try {
-                css = sass.renderSync({
-                    data: content,
-                    outputStyle: 'expanded',
-                    includePaths: [ `${cwd}` ],
-                    sourceMap: true,
-                    sourceMapEmbed: true
-                }).css.toString('utf8');
+                    styleFile = fs.readFileSync(path.resolve(`${cwd}/${p1}`), {encoding: 'utf8'});
                 } catch(err) {
                     console.log(err)
                 }
 
-                return postcss(postcssOptions).process(css).css;
-            }
-        }))
-        .pipe(through.obj((input, enc, cb) => {
-             let tempPath = input.path.replace(/src/, 'dist/lib');
-             let newPath = tempPath.replace(/\.ts/, '.js');
+                if (styleFile !== '') {
+                    try {
+                        const css = sass.renderSync({
+                            data: styleFile,
+                            outputStyle: 'expanded',
+                            includePaths: [ `${cwd}` ],
+                            sourceMap: true,
+                            sourceMapEmbed: false
+                        }).css.toString('utf8');
+
+                        return postcss(postcssOptions).process(css).css;
+                    } catch(err) {
+                        console.log(err)
+                    }
+                }
+                return '';
+            };
             
             const bundle = rollup.rollup({
                 input: input.path,
@@ -89,60 +81,30 @@ exports.compileDev = function compileDev() {
                         typescript: typescript
                     })
                 ]
-            }).then(res => { 
-                res.write({
-                    file: newPath,
+            }).then(res => {
+                res.generate({
                     format: 'es',
                     sourcemaps: true
+                }).then(code => {
+                    let generatedCode = code.code;
+                    let newCode = generatedCode.replace(/@style\('([^]*?)'\)/g, replaceStyle)
+                    file.path = newPath;
+                    file.contents = new Buffer(newCode);
+
+                    fs.ensureFileSync(file.path, err => {
+                        console.log(err);
+                    })
+        
+                    fs.writeFile(file.path, file.contents, (err) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+
+                    cb(null, file)
                 });
-                cb(null, input)
             });
         }))
-}
-
-exports.compileProduction = function compileProduction() {
-    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
-        .pipe(inject(gulp.src([`${cwd}/src/**/*.css`, `${cwd}/src/**/*.scss`]), {
-            starttag: '/* inject:{{path}} */',
-            endtag: '/* endinject */',
-            relative: true,
-            removeTags: true,
-            transform: (filePath, file) => {
-                const css = sass.renderSync({
-                    data: file.contents.toString('utf8'),
-                    outputStyle: 'expanded',
-                    includePaths: [ `${cwd}` ],
-                }).css.toString('utf8');
-
-                return postcss(postcssOptions).process(css).css;
-            }
-        }))
-        .pipe(through.obj((input, enc, cb) => {
-            let tempPath = input.path.replace(/src/, 'dist/lib');
-            let newPath = tempPath.replace(/\.ts/, '.js');
-           
-           const bundle = rollup.rollup({
-               input: input.path,
-               plugins: [
-                   rollupTypescript({
-                       typescript: typescript
-                   })
-               ]
-           }).then(res => { 
-               res.write({
-                   file: newPath,
-                   format: 'es',
-                   sourcemaps: false
-               });
-               cb(null, input)
-           });
-       }))
-}
-
-exports.compileTests = function compileTests() {
-    return gulp.src(`${cwd}/src/**/*.spec.ts`)
-        .pipe(tsTest())
-        .pipe(gulp.dest(`${cwd}/dist/test`))
 }
 
 exports.copyReadmeFiles = function copyReadmeFiles() {

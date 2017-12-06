@@ -9,50 +9,32 @@ const gulp = runner.gulp.run({directory: cwd})
 
 program
     .version('0.0.1')
-    .option('-w, --watch', 'Keep watching for changes')
-    .option('-e, --env [env]', 'environments [prod]')
-    .option('-s, --serve', 'Serve documentation')
+    .option('-w, --watch', 'keep watching for changes')
+    .option('-s, --serve', 'serve documentation')
+    .option('-c, --compile', 'compile and bundle typescript')
+    .option('-d, --documentation', 'generate documentation')
     .parse(process.argv);
 
-if (!program.watch) {
-    if (program.env === 'prod') {
-        gulp.build({production: true}).then(() => {
-            console.log('Production build done') 
+if (!program.watch && program.compile) {
+    gulp.compile(program).then(() => {
+        console.log('Compile done')
 
-            if (program.serve) {
-                runner.bs.init(cwd);
-            }
-        }).catch(err => {
-            console.log(err)
-        });
-    } else {
-        gulp.build().then(() => {
-            console.log('Development build done')
-
-            if (program.serve) {
-                runner.bs.init(cwd);
-            }
-            
-        }).catch(err => {
-            console.log(err)
-        });
-    }
+        if (program.serve) {
+            runner.bs.init(cwd);
+        }
+        
+    }).catch(err => {
+        console.log(err)
+    });
+} else if (program.watch){
+    gulp.watch(program).then(() => {
+        if (program.serve) {
+            runner.bs.init(cwd);
+        }
+    }).catch(err => {
+        console.log(err)
+    });
 } else {
-    if (program.env === 'prod') {
-        gulp.watch({production: true}).then(() => {
-            if (program.serve) {
-                runner.bs.init(cwd);
-            }
-        }).catch(err => {
-            console.log(err)
-        });
-    } else {
-        gulp.watch().then(() => {
-            if (program.serve) {
-                runner.bs.init(cwd);
-            }
-        }).catch(err => {
-            console.log(err)
-        });
-    }
+    console.log('No options where defined, see --help for more options')
+    process.exit(0)
 }
