@@ -24,6 +24,7 @@
   "dependencies": {
     "autoprefixer": "^7.1.5",
     "browser-sync": "^2.18.13",
+    "chalk": "^2.3.0",
     "commander": "^2.12.1",
     "concurrently": "^3.5.0",
     "del": "^3.0.0",

@@ -1,9 +1,10 @@
 const gulp = require("gulp")
-const rollup = require('rollup');
+const chalk = require("chalk")
+const rollup = require('rollup')
 const rollupTypescript = require('rollup-plugin-typescript');
 const inject = require('gulp-inject')
 const sass = require('node-sass')
-const typescript = require('typescript');
+const typescript = require('typescript')
 const sourcemaps = require('gulp-sourcemaps')
 const del = require('del')
 const postcss = require('postcss')
@@ -101,9 +102,13 @@ exports.compile = function compile() {
                         }
                     });
 
+                    console.log(chalk`{green Finished compiling ${file.path}}`)
                     cb(null, file)
                 });
-            });
+            }).catch(err => {
+                console.log(chalk`{red ${err}}`)
+                cb(null, file)
+            })
         }))
 }
 

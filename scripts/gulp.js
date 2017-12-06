@@ -13,18 +13,8 @@ exports.run = function(opts) {
     gulp.task('compile:demo-index', tasks.compileDemoIndex)
 
     gulp.task('documentation', ['copy:readme', 'compile:demos', 'compile:demo-index'])
-    gulp.task('build', ['compile', 'documentation'])
+    gulp.task('build', ['clean', 'compile'])
     gulp.task('both', ['build', 'documentation']);
-
-    // gulp.task('init:watch', () => {
-    //     gulp.watch(`${cwd}/src/**/*.scss`, ['compile'])
-    //     gulp.watch(`${cwd}/src/**/!(*.spec)*.ts`, ['compile'])
-    //     gulp.watch(`${cwd}/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
-    //     gulp.watch(`${rootPath}/templates/**/*.hbs`, ['compile:demos', 'compile:demo-index'])
-    //     gulp.watch(`${rootPath}/templates/**/*.scss`, ['compile:demos', 'compile:demo-index'])
-    // })
-
-    // gulp.task('watch', ['init:watch']);
 
     gulp.task('watch:documentation', () => {
         gulp.watch(`${cwd}/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
