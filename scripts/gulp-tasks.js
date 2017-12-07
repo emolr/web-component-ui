@@ -1,10 +1,13 @@
 const gulp = require("gulp")
+const ts = require("gulp-typescript")
+const tsProject = ts.createProject({
+    target: "es6",
+    lib: ["es5", "es6", "dom", "es7", "esnext"],
+    declaration: true
+})
 const chalk = require("chalk")
-const rollup = require('rollup')
-const rollupTypescript = require('rollup-plugin-typescript');
 const inject = require('gulp-inject')
 const sass = require('node-sass')
-const typescript = require('typescript')
 const sourcemaps = require('gulp-sourcemaps')
 const del = require('del')
 const postcss = require('postcss')
@@ -23,6 +26,8 @@ const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const cwdRelative = cwd.split('/')
+const utils = require('./utils');
+
 
 // add handlebars helpers
 handlebars.registerHelper('list', function(items, options) {
@@ -44,72 +49,27 @@ exports.clean = function clean() {
 exports.compile = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
         .pipe(through.obj((input, enc, cb) => {
-            let file = input;
-            const dir = path.dirname(input.path);
-            let tempPath = input.path.replace(/src/, 'dist/lib');
-            let newPath = tempPath.replace(/\.ts/, '.js');
-
-            const replaceStyle = (match, p1) => {
-                let styleFile = '';
-                try {
-                    styleFile = fs.readFileSync(path.resolve(`${cwd}/${p1}`), {encoding: 'utf8'});
-                } catch(err) {
-                    console.log(err)
-                }
-
-                if (styleFile !== '') {
-                    try {
-                        const css = sass.renderSync({
-                            data: styleFile,
-                            outputStyle: 'expanded',
-                            includePaths: [ `${cwd}` ],
-                            sourceMap: true,
-                            sourceMapEmbed: false
-                        }).css.toString('utf8');
-
-                        return postcss(postcssOptions).process(css).css;
-                    } catch(err) {
-                        console.log(err)
-                    }
-                }
-                return '';
-            };
-            
-            const bundle = rollup.rollup({
-                input: input.path,
-                plugins: [
-                    rollupTypescript({
-                        typescript: typescript
-                    })
-                ]
-            }).then(res => {
-                res.generate({
-                    format: 'es',
-                    sourcemaps: true
-                }).then(code => {
-                    let generatedCode = code.code;
-                    let newCode = generatedCode.replace(/@style\('([^]*?)'\)/g, replaceStyle)
-                    file.path = newPath;
-                    file.contents = new Buffer(newCode);
-
-                    fs.ensureFileSync(file.path, err => {
-                        console.log(err);
-                    })
-        
-                    fs.writeFile(file.path, file.contents, (err) => {
-                        if (err) {
-                            console.log(err);
-                        }
-                    });
-
-                    console.log(chalk`{green Finished compiling ${file.path}}`)
-                    cb(null, file)
+            const file = input.clone();
+            utils.compileBundle(file).then(bundle => {
+                fs.ensureFileSync(bundle.path, err => {
+                    if (err) console.log(err);
+                })
+                
+                fs.writeFileSync(bundle.path, bundle.contents, (err) => {
+                    if (err) console.log(err);
                 });
-            }).catch(err => {
-                console.log(chalk`{red ${err}}`)
-                cb(null, file)
-            })
+
+                cb(null, input)
+            });   
         }))
+        .pipe(through.obj((input, enc, cb) => {
+            const file = input.clone();
+            const compiled = utils.injectStyle({code: file.contents.toString()});
+            file.contents = new Buffer(compiled);
+            cb(null, file)
+        }))
+        .pipe(tsProject())
+        .pipe(gulp.dest('dist/lib'))
 }
 
 exports.copyReadmeFiles = function copyReadmeFiles() {
