@@ -1,10 +1,4 @@
 const gulp = require("gulp")
-const ts = require("gulp-typescript")
-const tsProject = ts.createProject({
-    target: "es6",
-    lib: ["es5", "es6", "dom", "es7", "esnext"],
-    declaration: true
-})
 const chalk = require("chalk")
 const inject = require('gulp-inject')
 const sass = require('node-sass')
@@ -27,6 +21,19 @@ const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const cwdRelative = cwd.split('/')
 const utils = require('./utils');
+const ts = require("gulp-typescript")
+const tsProjectRaw = ts.createProject({
+    target: "es6",
+    lib: ["es5", "es6", "dom", "es7", "esnext"],
+    experimentalDecorators: true
+})
+const tsProjectModule = ts.createProject({
+    target: "es6",
+    module: "umd",
+    lib: ["es5", "es6", "dom", "es7", "esnext"],
+    declaration: true,
+    experimentalDecorators: true
+})
 
 
 // add handlebars helpers
@@ -46,35 +53,90 @@ exports.clean = function clean() {
     })
 }
 
-exports.compile = function compile() {
+exports.compileBundle = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
-        .pipe(through.obj((input, enc, cb) => {
-            const file = input.clone();
-            utils.compileBundle(file).then(bundle => {
-                fs.ensureFileSync(bundle.path, err => {
-                    if (err) console.log(err);
-                })
-                
-                fs.writeFileSync(bundle.path, bundle.contents, (err) => {
-                    if (err) console.log(err);
-                });
+    .pipe(through.obj((input, enc, cb) => {
+        const file = input.clone();
+        let name = file.path.split('/').pop().replace(/-([a-z])/g, (g) => { 
+            return g[1].toUpperCase(); 
+        }).replace(/\.ts/, '');
 
-                cb(null, input)
-            });   
-        }))
-        .pipe(through.obj((input, enc, cb) => {
-            const file = input.clone();
-            const compiled = utils.injectStyle({code: file.contents.toString()});
-            file.contents = new Buffer(compiled);
-            cb(null, file)
-        }))
-        .pipe(tsProject())
-        .pipe(gulp.dest('dist/lib'))
+        utils.compileBundle({
+            file: file,
+            format: 'iife',
+            type: 'bundle',
+            name: name
+        }).then(bundle => {
+            cb(null, bundle)
+        });   
+    }))
+    .pipe(gulp.dest('dist/lib'))
+    .pipe(through.obj((input, enc, cb) => {
+        console.log(chalk`{green Finished compiling ${input.path}}`)
+        cb(null, input)
+    }))
+}
+
+exports.compileRaw = function compile() {
+    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    .pipe(through.obj((input, enc, cb) => {
+        let file = input.clone();
+        file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
+        cb(null, file)
+    }))
+    .pipe(tsProjectRaw())
+    .pipe(gulp.dest('dist/lib'))
+    .pipe(through.obj((input, enc, cb) => {
+        console.log(chalk`{green Finished compiling ${input.path}}`)
+        cb(null, input)
+    }))
+}
+
+exports.compileModule = function compile() {
+    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    .pipe(through.obj((input, enc, cb) => {
+        let file = input.clone();
+        file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
+        cb(null, file)
+    }))
+    .pipe(through.obj((input, enc, cb) => {
+        const file = input.clone();
+        let name = file.path.split('/').pop().replace(/-([a-z])/g, (g) => { 
+            return g[1].toUpperCase(); 
+        }).replace(/\.ts/, '');
+
+        utils.compileBundle({
+            file: file,
+            format: 'umd',
+            type: 'module',
+            name: name
+        }).then(bundle => {
+            cb(null, bundle)
+        });   
+    }))
+    .pipe(gulp.dest('dist/lib'))
+    .pipe(through.obj((input, enc, cb) => {
+        console.log(chalk`{green Finished compiling ${input.path}}`)
+        cb(null, input)
+    }))
 }
 
 exports.copyReadmeFiles = function copyReadmeFiles() {
     return gulp.src(`${cwd}/src/**/*.md`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
+        .pipe(through.obj((input, enc, cb) => {
+            console.log(chalk`{green ${input.path} is successfully copied}`)
+            cb(null, input)
+        }))
+}
+
+exports.copyPackageFiles = function copyReadmeFiles() {
+    return gulp.src(`${cwd}/src/**/package.json`)
+        .pipe(gulp.dest(`${cwd}/dist/lib`))
+        .pipe(through.obj((input, enc, cb) => {
+            console.log(chalk`{green ${input.path} is successfully copied}`)
+            cb(null, input)
+        }))
 }
 
 exports.compileDemos = function compileDemos() {

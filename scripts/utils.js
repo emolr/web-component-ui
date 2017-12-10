@@ -60,28 +60,34 @@ exports.injectStyle = function(options) {
     })
 }
 
-exports.compileBundle = function(input) {
+exports.compileBundle = function(options) {
+    const opts = Object.assign({
+        file: null,
+        format: 'iife',
+        type: 'bundle',
+        name: ''
+    }, options)
     return new Promise(resolve => {
         rollup.rollup({
-            input: input.path,
+            input: opts.file.path,
             plugins: [
                 rollupTypescript({
                     typescript: typescript,
                     target: "es6",
-                    lib: ["es5", "es6", "dom", "es7", "esnext"]
+                    lib: ["es5", "es6", "dom", "es7", "esnext"],
+                    experimentalDecorators: true
                 })
             ]
         }).then(res => {
             res.generate({
-                format: 'es',
-                sourcemaps: true
+                format: opts.format,
+                name: opts.name,
+                sourcemap: true
             }).then(code => {
-                input.contents = new Buffer(this.injectStyle({code: code.code}));
-                input.path = input.path.replace(/([^]*?)(src)([^]*)(.ts)/g, (match, p1, p2, p3, p4) => {
-                    return `${p1}dist/lib${p3}.bundle.js`
-                });
-                console.log(chalk`{green Finished compiling ${input.path}}`)
-                resolve(input)
+                opts.file.contents = new Buffer(this.injectStyle({code: code.code}));
+                opts.file.path = opts.file.path.replace(/\.ts/, `.${opts.type}.js`)
+                
+                resolve(opts.file)
             });
         }).catch(err => {
             console.log(chalk`{red ${err}}`)

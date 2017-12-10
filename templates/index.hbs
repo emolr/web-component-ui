@@ -14,9 +14,11 @@
     <body>
         <div class="app">
             <div class="app__layout">
+                <span class="app__layout__sidebar-toggle" toggle-sidebar>Show navigation</span>
+                <span class="app__layout__overlay" toggle-sidebar></span>
                 <div class="app__layout__sidebar">
                     <div iframe-navigation class="sidebar-nav">
-                        <a href="readme.html" class="sidebar-nav__title">DNA Design System</a>
+                        <a href="readme.html" class="sidebar-nav__title">Overview</a>
                         <div>
                             {{#list docs}}
                                 <a href="{{demo}}">{{title}}</a>
@@ -43,27 +45,46 @@
             </div>
         </div>
         <script>
-            
-            let frame = document.querySelector('#component-view');
-            let navigations = document.querySelectorAll('[iframe-navigation]');
-            
-            navigations.forEach(nav => nav.addEventListener('click', e => {
-                e.preventDefault();
-                const target = e.target;
-                if (!target.hasAttribute('href')) {
-                    return
+            (() => {
+                const frame = document.querySelector('#component-view')
+                const navigations = document.querySelectorAll('[iframe-navigation]')
+                const appLayout = document.querySelector('.app__layout')
+                const sidebarToggles = document.querySelectorAll('[toggle-sidebar]')
+
+                const toggleSidebar = () => {
+                     if (!Boolean(appLayout.hasAttribute('sidebar-open'))) {
+                        appLayout.setAttribute('sidebar-open', '')
+                    } else {
+                        appLayout.removeAttribute('sidebar-open')
+                    }
                 }
-                const href = target.getAttribute('href');
-                const activeClass = 'sidebar-nav__is-active';
-                const active = document.querySelector(`.${activeClass}`);
-                if (active) {
-                    active.classList.remove(activeClass)
-                }
-                target.classList.add(activeClass);
-                frame.setAttribute('src', href);
-                return false;
-            }));
-            
+                
+                navigations.forEach(nav => nav.addEventListener('click', e => {
+                    e.preventDefault();
+                    const target = e.target;
+                    if (!target.hasAttribute('href')) {
+                        return
+                    }
+                    const href = target.getAttribute('href')
+                    const activeClass = 'sidebar-nav__is-active'
+                    const active = document.querySelector(`.${activeClass}`)
+                    if (active) {
+                        active.classList.remove(activeClass)
+                    }
+                    target.classList.add(activeClass);
+                    frame.setAttribute('src', href)
+                    
+                    if (Boolean(appLayout.hasAttribute('sidebar-open'))) {
+                        appLayout.removeAttribute('sidebar-open')
+                    }
+
+                    return false;
+                }));
+
+                sidebarToggles.forEach(toggle => {
+                    toggle.addEventListener('click', toggleSidebar)
+                })
+            })();
         </script>
     </body>
 </html>

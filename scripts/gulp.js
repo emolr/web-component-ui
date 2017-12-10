@@ -7,13 +7,17 @@ exports.run = function(opts) {
     const rootPath = path.resolve(process.mainModule.filename, '..', '..');
 
     gulp.task('clean', tasks.clean)
-    gulp.task('compile', tasks.compile)
+    gulp.task('compile:bundle', tasks.compileBundle)
+    gulp.task('compile:raw', tasks.compileRaw)
+    gulp.task('compile:module', tasks.compileModule)
     gulp.task('copy:readme', tasks.copyReadmeFiles)
     gulp.task('compile:demos', tasks.compileDemos)
     gulp.task('compile:demo-index', tasks.compileDemoIndex)
+    gulp.task('copy:package-configuration', tasks.copyPackageFiles)
 
     gulp.task('documentation', ['copy:readme', 'compile:demos', 'compile:demo-index'])
-    gulp.task('build', ['clean', 'compile'])
+    gulp.task('compile', ['compile:bundle', 'compile:raw', 'compile:module'])
+    gulp.task('build', ['clean', 'compile', 'copy:package-configuration'])
     gulp.task('both', ['build', 'documentation']);
 
     gulp.task('watch:documentation', () => {
