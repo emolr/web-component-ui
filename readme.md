@@ -1,6 +1,5 @@
 # Web Component UI / $ WUI
-
-## A CLI tool for compiling Web Components and generating documentation.
+A CLI tool for compiling Web Components and generating documentation.
 
 This is a build tool that enables the possibilities of building web components in any style you'd like, using [Typescript](https://www.typescriptlang.org/) and [SASS](http://www.sass-lang.com/) where the output is readable code in vanillaJS, bundled, and modulized ready for tree-shaking when used in project having their own build system.
 
