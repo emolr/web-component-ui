@@ -124,7 +124,7 @@ const template = `
 _The scss file path needs to be absolute from project root._
 
 ### Create a component library
-Because roll-up is used in the background, just make any `.ts` file where you import all the components you would like to bundle a library and it will generate a bundle with all components as well and each component individually. 
+Because roll-up is used in the background, just make any `.ts` file where you import all the components you would like to bundle in a library and it will generate a bundle with all components as well and each component individually. 
 
 For example a file called `src/myLib.ts`:
 ```
@@ -169,6 +169,7 @@ Please create an issue, make a pull request, start a discussion or ping me on [t
 
 ## The future? 
 
+* Example projects in another repo.
 * Implement a testing suite like [web-component-tester](https://github.com/Polymer/web-component-tester).
 * Make the documentation pages themable and add features reading from package.json. Like add a git link if git has been configured in a package.json file for example.
 * Update style on documentation in general.
