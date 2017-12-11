@@ -1,6 +1,6 @@
 {
   "name": "web-component-ui",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "A web component build tool and styleguide generator CLI tool.",
   "main": "runner.js",
   "bin": {
@@ -36,6 +36,7 @@
     "gulp-marked-json": "^1.0.0",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-typescript": "^3.2.3",
+    "gulp-uglify-es": "^0.1.8",
     "handlebars": "^4.0.11",
     "html-entities": "^1.2.1",
     "marked": "^0.3.6",

@@ -22,6 +22,7 @@ const cwd = process.cwd()
 const cwdRelative = cwd.split('/')
 const utils = require('./utils');
 const ts = require("gulp-typescript")
+const uglify = require('gulp-uglify-es').default;
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
@@ -69,6 +70,10 @@ exports.compileBundle = function compile() {
         }).then(bundle => {
             cb(null, bundle)
         });   
+    }))
+    .pipe(uglify({
+        ecma: 6,
+        compress: true
     }))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
