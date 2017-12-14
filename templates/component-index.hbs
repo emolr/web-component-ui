@@ -23,9 +23,22 @@
                 constructor() {
                     super()
                     const temp = this.querySelector('template')
+                    const iframe = document.createElement('iframe');
+                    const html = `
+                        <head>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.19/webcomponents-lite.js"><\/script>
+                        </head>
+                        <body style="margin: 0; padding: 0;">${temp.innerHTML}</body>
+                    `;
                     const inner = document.createElement('div');
-                    inner.appendChild(temp.content.cloneNode(true))
-                    this.appendChild(inner);
+                    inner.appendChild(iframe);
+                    this.appendChild(inner)
+
+                    setTimeout(() => {
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(html);
+                        iframe.contentWindow.document.close();
+                    }, 100)
                 }
 
                 connectedCallback() {

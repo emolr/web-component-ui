@@ -20,7 +20,7 @@ exports.compileStyle = function(options) {
         const css = sass.renderSync({
             data: opts.code,
             outputStyle: 'expanded',
-            includePaths: [ path.resolve(`${opts.cwd}/src`) ],
+            includePaths: [ path.resolve(`${opts.cwd}`) ],
             sourceMap: opts.sourceMap,
             sourceMapEmbed: opts.sourceMap
         }).css.toString('utf8');
