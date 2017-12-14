@@ -26,14 +26,16 @@ const uglify = require('gulp-uglify-es').default;
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
-    experimentalDecorators: true
+    experimentalDecorators: true,
+    moduleResolution: 'node'
 })
 const tsProjectModule = ts.createProject({
     target: "es6",
     module: "umd",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
     declaration: true,
-    experimentalDecorators: true
+    experimentalDecorators: true,
+    moduleResolution: 'node'
 })
 
 

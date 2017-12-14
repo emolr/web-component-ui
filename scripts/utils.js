@@ -8,6 +8,8 @@ const rollup = require('rollup')
 const rollupTypescript = require('rollup-plugin-typescript');
 const typescript = require('typescript')
 const chalk = require("chalk")
+const rollupResolve = require("rollup-plugin-node-resolve");
+const commonjs = require("rollup-plugin-commonjs");
 
 exports.compileStyle = function(options) {
     const opts = Object.assign({
@@ -67,6 +69,7 @@ exports.compileBundle = function(options) {
         type: 'bundle',
         name: ''
     }, options)
+
     return new Promise(resolve => {
         rollup.rollup({
             input: opts.file.path,
@@ -75,8 +78,14 @@ exports.compileBundle = function(options) {
                     typescript: typescript,
                     target: "es6",
                     lib: ["es5", "es6", "dom", "es7", "esnext"],
-                    experimentalDecorators: true
-                })
+                    experimentalDecorators: true,
+                    moduleResolution: 'node'
+                }),
+                rollupResolve({
+                    jsnext: true,
+                    extensions: [ '.ts', '.js', '.json' ]
+                }),
+                commonjs()
             ]
         }).then(res => {
             res.generate({
