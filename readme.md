@@ -167,6 +167,10 @@ Yes! The more people (and bots) the better.
 
 Please create an issue, make a pull request, start a discussion or ping me on [twitter - @emolrmoeller](https://twitter.com/emilrmoeller).
 
+## Development
+
+For development, you can use this demo project that uses all the features of the cli [web-component-ui-demo](https://github.com/emolr/web-component-ui-demo)
+
 ## The future? 
 
 * Example projects in another repo.
