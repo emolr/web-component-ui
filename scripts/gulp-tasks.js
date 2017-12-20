@@ -19,7 +19,6 @@ const entities = new Entities()
 const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
-const cwdRelative = cwd.split('/')
 const utils = require('./utils');
 const ts = require("gulp-typescript")
 const uglify = require('gulp-uglify-es').default;
@@ -60,7 +59,9 @@ exports.compileBundle = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(through.obj((input, enc, cb) => {
         const file = input.clone();
-        let name = file.path.split('/').pop().replace(/-([a-z])/g, (g) => { 
+        const pathObj = path.parse(file.path);
+        
+        let name = pathObj.name.replace(/-([a-z])/g, (g) => { 
             return g[1].toUpperCase(); 
         }).replace(/\.ts/, '');
 
@@ -108,9 +109,10 @@ exports.compileModule = function compile() {
     }))
     .pipe(through.obj((input, enc, cb) => {
         const file = input.clone();
-        let name = file.path.split('/').pop().replace(/-([a-z])/g, (g) => { 
+        const pathObj = path.parse(file.path)
+        let name = pathObj.name.replace(/-([a-z])/g, (g) => { 
             return g[1].toUpperCase(); 
-        }).replace(/\.ts/, '');
+        });
 
         utils.compileBundle({
             file: file,
@@ -183,15 +185,13 @@ exports.compileDemos = function compileDemos() {
                 let filename;
 
                 if (input.path.match(/src/)) {
-                    newPath = input.path.replace(/src/, 'dist/lib');
+                    newPath = input.path.replace(/src/, path.join('dist', 'lib'));
                 } else if (input.path.match(/docs/)) {
-                    fs.ensureDirSync(`${cwd}/dist/docs`)
-                    newPath = input.path.replace(/docs/, 'dist/docs');
-                } else if (!input.relative.match(/\//)) {
-                    pathArray = input.path.split('/');
-                    pathArray.splice(pathArray.length - 1, 0, 'dist');
-                    fileName = pathArray[pathArray.length - 1];
-                    newPath = pathArray.join('/');
+                    fs.ensureDirSync(path.join(cwd, 'dist', 'docs'))
+                    newPath = input.path.replace(/docs/, path.join('dist', 'docs'));
+                } else if (!path.parse(input.relative).dir) {
+                    const pathObj = path.parse(input.path);
+                    newPath = path.join(pathObj.dir, 'dist', pathObj.base)
                 }
                 
                 newPath = newPath.replace(/.json/, '.html')
@@ -216,6 +216,7 @@ exports.compileDemos = function compileDemos() {
             }
         }))
         .pipe(through.obj((input, enc, cb) => {
+            fs.ensureDirSync(path.parse(input.path).dir)
             fs.writeFile(input.path, input.contents, (err) => {
                 if (err) {
                     console.log(err);
@@ -233,7 +234,7 @@ exports.compileDemoIndex = function compileDemoIndex() {
                     const relativePath = f.split('src')[1];
                     return {
                         path: path.resolve(f),
-                        relative: '/lib' + relativePath
+                        relative: path.normalize(path.join('/', 'lib', relativePath))
                     };
                 });
                 resolve(filepaths);
@@ -248,7 +249,7 @@ exports.compileDemoIndex = function compileDemoIndex() {
                     const relativePath = f.split(cwd)[1];
                     return {
                         path: path.resolve(f),
-                        relative: relativePath
+                        relative: path.normalize(relativePath)
                     };
                 });
                 resolve(filepaths);
