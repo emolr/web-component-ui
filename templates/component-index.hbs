@@ -34,10 +34,17 @@
                     inner.appendChild(iframe);
                     this.appendChild(inner)
 
+                    iframe.style.visibility = 'hidden';
+                    iframe.style.height = '0px';
+
                     setTimeout(() => {
                         iframe.contentWindow.document.open();
                         iframe.contentWindow.document.write(html);
-                        iframe.contentWindow.document.close();
+                        iframe.contentWindow.document.close();    
+                        iframe.contentWindow.document.addEventListener('DOMContentLoaded', () => {
+                            iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+                            iframe.style.visibility = 'visible';
+                        }, false)
                     }, 100)
                 }
 
