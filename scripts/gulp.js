@@ -55,48 +55,67 @@ exports.run = function(opts) {
 
     this.compile = async function compile(opts) {
         console.log('Compile started')
-        if (!opts.documentation) {
-            await taskPromise('build').then(() => {}).catch(err => {
-                console.log(err)
-            })
-        } else {
-            await taskPromise('both').then(() => {}).catch(err => {
-                console.log(err)
-            })
-        }
+        await taskPromise('build');
+        // if (!opts.documentation) {
+        //     await taskPromise('build').then(() => {}).catch(err => {
+        //         console.log(err)
+        //     })
+        // } else {
+        //     await taskPromise('both').then(() => {}).catch(err => {
+        //         console.log(err)
+        //     })
+        // }
+    }
+    this.compileComponent = async function compileComponent(opts) {
+        console.log('buildComponent started');
+        await taskPromise('build');
+    }
+    this.compileDocumentation = async function compileDocumentation(opts) {
+        console.log('buildDocumentation started');
+        await taskPromise('documentation');
     }
 
     this.watch = async function watch(opts) {
-        console.log('Started watching')
-        if (opts.compile) {
-            if (opts.documentation) {
-                taskPromise('both').then(() => {
-                    taskPromise('watch:both').catch(err => {
-                        console.log(err)
-                    })
-                }).catch(err => {
-                    console.log(err)
-                })
-            } else {
-                taskPromise('build').then(() => {
-                    taskPromise('watch:build').catch(err => {
-                        console.log(err)
-                    })
-                }).catch(err => {
-                    console.log(err)
-                })
-            }
-        } else {
-            if (opts.documentation) {
-                taskPromise('documentation').then(() => {
-                    taskPromise('watch:documentation').catch(err => {
-                        console.log(err)
-                    })
-                }).catch(err => {
-                    console.log(err)
-                })
-            }
-        }
+        console.log('watch started');
+        await taskPromise('watch:both');
+        // console.log('Started watching')
+        // if (opts.compile) {
+        //     if (opts.documentation) {
+        //         taskPromise('both').then(() => {
+        //             taskPromise('watch:both').catch(err => {
+        //                 console.log(err)
+        //             })
+        //         }).catch(err => {
+        //             console.log(err)
+        //         })
+        //     } else {
+        //         taskPromise('build').then(() => {
+        //             taskPromise('watch:build').catch(err => {
+        //                 console.log(err)
+        //             })
+        //         }).catch(err => {
+        //             console.log(err)
+        //         })
+        //     }
+        // } else {
+        //     if (opts.documentation) {
+        //         taskPromise('documentation').then(() => {
+        //             taskPromise('watch:documentation').catch(err => {
+        //                 console.log(err)
+        //             })
+        //         }).catch(err => {
+        //             console.log(err)
+        //         })
+        //     }
+        // }
+    }
+    this.watchComponent = async function watchComponent(opts) {
+        console.log('watchComponent started');
+        await taskPromise('watch:build');
+    }
+    this.watchDocumentation = async function watchDocumentation(opts) {
+        console.log('watchDocumentation started');
+        await taskPromise('watch:documentation');
     }
 
     return this
