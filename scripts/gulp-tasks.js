@@ -57,6 +57,7 @@ exports.clean = function clean() {
 
 exports.compileBundle = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    .pipe(sourcemaps.init())
     .pipe(through.obj((input, enc, cb) => {
         const file = input.clone();
         const pathObj = path.parse(file.path);
@@ -78,6 +79,7 @@ exports.compileBundle = function compile() {
         ecma: 6,
         compress: true
     }))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
         console.log(chalk`{green Finished compiling ${input.path}}`)
@@ -87,12 +89,14 @@ exports.compileBundle = function compile() {
 
 exports.compileRaw = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    .pipe(sourcemaps.init())
     .pipe(through.obj((input, enc, cb) => {
         let file = input.clone();
         file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
         cb(null, file)
     }))
     .pipe(tsProjectRaw())
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
         console.log(chalk`{green Finished compiling ${input.path}}`)
@@ -102,6 +106,7 @@ exports.compileRaw = function compile() {
 
 exports.compileModule = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    .pipe(sourcemaps.init())
     .pipe(through.obj((input, enc, cb) => {
         let file = input.clone();
         file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
@@ -123,6 +128,11 @@ exports.compileModule = function compile() {
             cb(null, bundle)
         });   
     }))
+    .pipe(uglify({
+        ecma: 6,
+        compress: true
+    }))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
         console.log(chalk`{green Finished compiling ${input.path}}`)

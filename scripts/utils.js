@@ -10,6 +10,8 @@ const typescript = require('typescript')
 const chalk = require("chalk")
 const rollupResolve = require("rollup-plugin-node-resolve");
 const commonjs = require("rollup-plugin-commonjs");
+const UglifyJS = require("uglify-es");
+const applySourceMap = require('vinyl-sourcemaps-apply');
 
 exports.compileStyle = function(options) {
     const opts = Object.assign({
@@ -93,9 +95,12 @@ exports.compileBundle = function(options) {
                 name: opts.name,
                 sourcemap: true
             }).then(code => {
-                opts.file.contents = new Buffer(this.injectStyle({code: code.code}));
-                opts.file.path = opts.file.path.replace(/\.ts/, `.${opts.type}.js`)
-                
+                const filePath = opts.file.path.replace(/\.ts/, `.${opts.type}.js`)
+                const generatedCode = this.injectStyle({code: code.code});
+                code.map.file = filePath;
+                opts.file.path = filePath;
+                opts.file.contents = new Buffer(generatedCode);
+                applySourceMap(opts.file, code.map);
                 resolve(opts.file)
             });
         }).catch(err => {

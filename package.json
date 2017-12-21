@@ -47,6 +47,9 @@
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-typescript": "^0.8.1",
     "through2": "^2.0.3",
-    "typescript": "^2.5.3"
+    "typescript": "^2.5.3",
+    "uglify-es": "^3.2.2",
+    "uglify-js": "^3.2.2",
+    "vinyl-sourcemaps-apply": "^0.2.1"
   }
 }
