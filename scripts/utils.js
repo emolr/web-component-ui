@@ -1,111 +1,53 @@
-const sass = require('node-sass')
-const postcss = require('postcss')
-const autoprefixer = require('autoprefixer')
-const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
-const path = require('path')
-const fs = require('fs-extra')
-const rollup = require('rollup')
-const rollupTypescript = require('rollup-plugin-typescript');
-const typescript = require('typescript')
-const chalk = require("chalk")
-const rollupResolve = require("rollup-plugin-node-resolve");
-const commonjs = require("rollup-plugin-commonjs");
-const UglifyJS = require("uglify-es");
-const applySourceMap = require('vinyl-sourcemaps-apply');
+const chalk = require("chalk");
+const log = console.log;
 
-exports.compileStyle = function(options) {
-    const opts = Object.assign({
-        code: '',
-        sourceMap: false,
-        cwd: process.cwd()
-    }, options)
+const LOGGER_SEVERITIES = {
+    normal: chalk.white, // "default"
+    info: chalk.blue, // info
+    success: chalk.green, // success
+    warn: chalk.yellow, // warning
+    error: chalk.red // error
+};
+const LOGGER_SYMBOLS = {
+    OK: '\u2713', // checkmark
+    WARN: '\u2757', // heavy exclamation mark
+    FAIL: '\u2717' // cross
+};
 
-    try {
-        const css = sass.renderSync({
-            data: opts.code,
-            outputStyle: 'expanded',
-            includePaths: [ path.resolve(`${opts.cwd}`) ],
-            sourceMap: opts.sourceMap,
-            sourceMapEmbed: opts.sourceMap
-        }).css.toString('utf8');
-
-        return postcss(postcssOptions).process(css).css;
-    } catch(err) {
-        console.log(err)
-        return;
+/**
+ * Logging helper, standardizes how we log messages to users.
+ * The context argument can be used to convey some meaning about the context of the message - example:
+ * `log('World', 2, 'Hello');`
+ * prints "[Hello] ✓ World"
+ *
+ * @param {string} message - Message to be printed
+ * @param {number} severity - Severity level of the message (0-4)
+ * @param {string} [context] - The context of the message, ie "watch"
+ */
+exports.log = (message, severity = 0, context) => {
+    const ctx = [
+        context ? `[${context}]` : ''
+    ];
+    switch (severity) {
+        case 1: {
+            log(LOGGER_SEVERITIES.info(`${ctx} ${message}`));
+            break;
+        }
+        case 2: {
+            log(LOGGER_SEVERITIES.success(`${ctx} ${LOGGER_SYMBOLS.OK} ${message}`));
+            break;
+        }
+        case 3: {
+            log(LOGGER_SEVERITIES.warn(`${ctx} ${LOGGER_SYMBOLS.WARN} ${message}`));
+            break;
+        }
+        case 4: {
+            log(LOGGER_SEVERITIES.error(`${ctx} ${LOGGER_SYMBOLS.FAIL} ${message}`));
+            break;
+        }
+        case 0:
+        default: {
+            log(`${ctx} ${message}`);
+        }
     }
-}
-
-exports.injectStyle = function(options) {
-    let opts = Object.assign({
-        cwd: process.cwd(),
-        code: '',
-        sourceMap: false,
-        regex: /@style\('([^]*?)'\)/g
-    }, options)
-    return opts.code.replace(opts.regex, (match, stylePath) => {
-        let scss = '';
-
-        try {
-            scss = fs.readFileSync(path.resolve(`${opts.cwd}/${stylePath}`), {encoding: 'utf8'})
-        } catch(err) {
-            console.log(err)
-        }
-        
-        if (scss !== '') {
-            return this.compileStyle({
-                code: scss,
-                sourceMap: opts.sourceMap,
-                cwd: opts.cwd
-            })
-        } else {
-            return;
-        }
-    })
-}
-
-exports.compileBundle = function(options) {
-    const opts = Object.assign({
-        file: null,
-        format: 'iife',
-        type: 'bundle',
-        name: ''
-    }, options)
-
-    return new Promise(resolve => {
-        rollup.rollup({
-            input: opts.file.path,
-            plugins: [
-                rollupTypescript({
-                    typescript: typescript,
-                    target: "es6",
-                    lib: ["es5", "es6", "dom", "es7", "esnext"],
-                    experimentalDecorators: true,
-                    moduleResolution: 'node'
-                }),
-                rollupResolve({
-                    jsnext: true,
-                    extensions: [ '.ts', '.js', '.json' ]
-                }),
-                commonjs()
-            ]
-        }).then(res => {
-            res.generate({
-                format: opts.format,
-                name: opts.name,
-                sourcemap: true
-            }).then(code => {
-                const filePath = opts.file.path.replace(/\.ts/, `.${opts.type}.js`)
-                const generatedCode = this.injectStyle({code: code.code});
-                code.map.file = filePath;
-                opts.file.path = filePath;
-                opts.file.contents = new Buffer(generatedCode);
-                applySourceMap(opts.file, code.map);
-                resolve(opts.file)
-            });
-        }).catch(err => {
-            console.log(chalk`{red ${err}}`)
-            resolve(null)
-        })
-    })
-}
+};
