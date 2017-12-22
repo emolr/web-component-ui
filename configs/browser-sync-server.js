@@ -7,7 +7,7 @@ exports.init = function(cwd) {
             index: `demo.html`,
             files: [`${cwd}/dist/**/*.js`, `${cwd}/dist/**/*.html`],
             notify: false,
-            reloadDebounce: 200
+            reloadDebounce: 400
         })
     }, 2000)
 }
