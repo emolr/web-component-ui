@@ -2,11 +2,12 @@
 const process = require('process');
 const program = require('commander');
 const runner = require('../runner');
-const path = require('path');
 
 const cwd = process.cwd();
 const gulp = runner.gulp.run({directory: cwd});
 const pkg = require('../package.json');
+
+const log = require('../scripts/utils').log;
 
 program
     .version(pkg.version || 'N/A');
@@ -30,68 +31,32 @@ if(program.args.length < 1) {
 }
 
 function build(options) {
-    console.log(`[Build] Compiling...`);
+    log('Compiling...', 1, 'Build');
     gulp.compileComponent(options)
         .then(() => {
-            console.log(`[Build] Compile done`);
             if(options.documentation) {
-                console.log(`[Build] Generating documentation...`);
+                log('Generating documentation...', 1, 'Build');
                 return gulp.compileDocumentation();
             }
         })
-        .then(() => {
-            console.log(`[Build] Documentation done`);
-        })
-        .catch((err) => console.error(err));
+        .catch((err) => log('Error: ', 4, 'Build'));
 }
 function start(options) {
-    console.log(`[Start] Compiling...`);
+    log('Compiling...', 1, 'Start');
     gulp.compileComponent()
         .then(() => {
-            console.log(`[Start] Compile done`);
-            console.log(`[Start] Generating documentation...`);
+            log('Generating docuentation...', 1, 'Start');
             return gulp.compileDocumentation();
         })
         .then(() => {
-            console.log(`[Start] Documentation done`);
-            console.log(`[Start] Watching for changes...`);
+            log('Watching for changes...', 1, 'Start');
             return gulp.watch();
         })
         .then(() => {
             if(options.open) {
-                console.log(`[Start] Starting BrowserSync...`);
+                log('Starting BrowserSync...', 1, 'Start');
                 runner.bs.init(cwd);
             }
         })
+        .catch((err) => log('Error: ', 4, 'Start'));
 }
-
-// if(program.args.length < 1 || program.args)
-    // .option('-w, --watch', 'keep watching for changes')
-    // .option('-s, --serve', 'serve documentation')
-    // .option('-c, --compile', 'compile and bundle typescript')
-    // .option('-d, --documentation', 'generate documentation')
-    // .parse(process.argv);
-
-// if (!program.watch && program.compile) {
-//     gulp.compile(program).then(() => {
-//         console.log('Compile done')
-//
-//         if (program.serve) {
-//             runner.bs.init(cwd);
-//         }
-//
-//     }).catch(err => {
-//         console.log(err)
-//     });
-// } else if (program.watch){
-//     gulp.watch(program).then(() => {
-//         if (program.serve) {
-//             runner.bs.init(cwd);
-//         }
-//     }).catch(err => {
-//         console.log(err)
-//     });
-// } else {
-//     console.log('No options where defined, see --help for more options')
-//     process.exit(0)
-// }
