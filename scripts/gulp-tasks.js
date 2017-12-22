@@ -21,11 +21,7 @@ const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const ts = require("gulp-typescript")
 const uglify = require('gulp-uglify-es').default;
-
-const styles = require('./styles');
-const bundle = require('./bundle');
 const log = require('./utils').log;
-
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
@@ -79,6 +75,7 @@ exports.compileBundle = function compile() {
             cb(null, bundle)
         });   
     }))
+    .pipe(gulpSassInject())
     .pipe(uglify({
         ecma: 6,
         compress: true
@@ -94,12 +91,8 @@ exports.compileBundle = function compile() {
 exports.compileRaw = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(sourcemaps.init())
-    .pipe(through.obj((input, enc, cb) => {
-        let file = input.clone();
-        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
-        cb(null, file)
-    }))
     .pipe(tsProjectRaw())
+    .pipe(gulpSassInject())
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
@@ -111,11 +104,6 @@ exports.compileRaw = function compile() {
 exports.compileModule = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(sourcemaps.init())
-    .pipe(through.obj((input, enc, cb) => {
-        let file = input.clone();
-        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
-        cb(null, file)
-    }))
     .pipe(through.obj((input, enc, cb) => {
         const file = input.clone();
         const pathObj = path.parse(file.path)
@@ -132,6 +120,7 @@ exports.compileModule = function compile() {
             cb(null, bundle)
         });   
     }))
+    .pipe(gulpSassInject())
     .pipe(uglify({
         ecma: 6,
         compress: true
