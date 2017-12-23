@@ -51,11 +51,7 @@ project/
 From the project root run:
 
 ```
-$ wui --compile --documentation 
-```
-or 
-```
-$ wui -c -d
+$ wui build -d
 ```
 
 This will generate a dist folder like this:
@@ -67,8 +63,11 @@ project/
 │   │   └── yourElement
 │   │       ├── yourElement.html // Demo file
 │   │       ├── yourElement.js // unresolved es6
+│   │       ├── yourElement.js.map // SourceMap
 │   │       ├── yourElement.bundle.js // es2015 IIFE with resolved dependencies using roll-up
+│   │       ├── yourElement.bundle.js.map // SourceMap
 │   │       ├── yourElement.module.js // UMD module to use with module bundlers
+│   │       ├── yourElement.module.js.map // SourceMap
 │   │       ├── package.json // List component dependencies and point to yourElement.module.js as main.
 │   │       └── readme.md // The original readme file
 │   └── demo.html
@@ -86,7 +85,7 @@ project/
 
 | Option      | Description                                                            |
 |-------------|------------------------------------------------------------------------|
-| -d, --documentation  | Generates a living styleguide from the `.md` files (available on `wui build`, default on `wui start`)|
+| -d, --documentation  | Generates a living styleguide from the `.md` files (available on `wui build`, default on `wui start`) |
 | -o, --open  | Opens the documentation in the default browser (available on `wui start`) |
 
 Using the command like this to build:
