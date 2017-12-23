@@ -21,26 +21,15 @@ const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
 const ts = require("gulp-typescript")
 const uglify = require('gulp-uglify-es').default;
-
-const styles = require('./styles');
-const bundle = require('./bundle');
 const log = require('./utils').log;
-
+const gulpSassInject = require('./gulp-sass-inject').gulpSassInject
+const gulpBundle = require('./gulp-bundle').gulpBundle
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
     experimentalDecorators: true,
     moduleResolution: 'node'
 })
-const tsProjectModule = ts.createProject({
-    target: "es6",
-    module: "umd",
-    lib: ["es5", "es6", "dom", "es7", "esnext"],
-    declaration: true,
-    experimentalDecorators: true,
-    moduleResolution: 'node'
-})
-
 
 // add handlebars helpers
 handlebars.registerHelper('list', function(items, options) {
@@ -62,23 +51,8 @@ exports.clean = function clean() {
 exports.compileBundle = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(sourcemaps.init())
-    .pipe(through.obj((input, enc, cb) => {
-        const file = input.clone();
-        const pathObj = path.parse(file.path);
-        
-        let name = pathObj.name.replace(/-([a-z])/g, (g) => { 
-            return g[1].toUpperCase(); 
-        }).replace(/\.ts/, '');
-
-        bundle.compileBundle({
-            file: file,
-            format: 'iife',
-            type: 'bundle',
-            name: name
-        }).then(bundle => {
-            cb(null, bundle)
-        });   
-    }))
+    .pipe(gulpBundle())
+    .pipe(gulpSassInject())
     .pipe(uglify({
         ecma: 6,
         compress: true
@@ -94,12 +68,8 @@ exports.compileBundle = function compile() {
 exports.compileRaw = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(sourcemaps.init())
-    .pipe(through.obj((input, enc, cb) => {
-        let file = input.clone();
-        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
-        cb(null, file)
-    }))
     .pipe(tsProjectRaw())
+    .pipe(gulpSassInject())
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
@@ -111,27 +81,12 @@ exports.compileRaw = function compile() {
 exports.compileModule = function compile() {
     return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
     .pipe(sourcemaps.init())
-    .pipe(through.obj((input, enc, cb) => {
-        let file = input.clone();
-        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
-        cb(null, file)
+    .pipe(gulpBundle({
+        format: 'umd',
+        type: 'module',
+        sourceMap: true
     }))
-    .pipe(through.obj((input, enc, cb) => {
-        const file = input.clone();
-        const pathObj = path.parse(file.path)
-        let name = pathObj.name.replace(/-([a-z])/g, (g) => { 
-            return g[1].toUpperCase(); 
-        });
-
-        bundle.compileBundle({
-            file: file,
-            format: 'umd',
-            type: 'module',
-            name: name
-        }).then(bundle => {
-            cb(null, bundle)
-        });   
-    }))
+    .pipe(gulpSassInject())
     .pipe(uglify({
         ecma: 6,
         compress: true
@@ -153,7 +108,7 @@ exports.copyReadmeFiles = function copyReadmeFiles() {
         }))
 }
 
-exports.copyPackageFiles = function copyReadmeFiles() {
+exports.copyPackageFiles = function copyPackageFiles() {
     return gulp.src(`${cwd}/src/**/package.json`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
         .pipe(through.obj((input, enc, cb) => {
