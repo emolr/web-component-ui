@@ -21,7 +21,8 @@ What I've learned is that there are no correct way to write web components. They
 
 ## Getting started
 
-The easiest would be to use WUI as a global CLI tool, but it can also be installed in the project and be run with npm `"build": "node node_modules/web-component-ui/bin/wui --compile"` as an example.
+The easiest would be to use WUI as a global CLI tool, but it can also be installed in the project and be run with npm `"build": "node node_modules/web-component-ui/bin/wui build -d"` as an example.
+`"start": "node node_modules/web-component-ui/bin/wui start -o"` as an example.
 
 
 ### Install the CLI
@@ -85,18 +86,22 @@ project/
 
 | Option      | Description                                                            |
 |-------------|------------------------------------------------------------------------|
-| -w, --watch | Watches the source directory for changes and recompiles affected files |
-| -s, --serve | Serves documentation written in `/src/ELEMENT/element.md` with browserSync |
-| -d, --documentation  | Generates a living styleguide from the `.md` files |
-| -c, --compile  | Compiles and outputs es6, bundle and module version from the ts files |
+| -d, --documentation  | Generates a living styleguide from the `.md` files (available on `wui build`, default on `wui start`)|
+| -o, --open  | Opens the documentation in the default browser (available on `wui start`) |
 
-Using the command like this:
+Using the command like this to build:
 
 ```
-$ wui --watch --serve --compile --documentation
+$ wui build -d
 ```
 
-Will automatically open the documentation and autoreload on changes in `/src/**/*`. This makes it into a sandbox environtment for developing the components standalone.
+or wathing changes like this:
+
+```
+$ wui start -o
+```
+
+Start will automatically open the documentation and autoreload on changes in `/src/**/*`. This makes it into a sandbox environtment for developing the components standalone.
 
 NB!<br>
 The demo index view is in a very early stage, so reloading causes it to reload to the project root readme.md so when working on a single component, right click on the component name in the demo navigation and open in new tab for a better developing experience.
@@ -173,7 +178,6 @@ For development, you can use this demo project that uses all the features of the
 
 ## The future? 
 
-* Example projects in another repo.
 * Implement a testing suite like [web-component-tester](https://github.com/Polymer/web-component-tester).
 * Make the documentation pages themable and add features reading from package.json. Like add a git link if git has been configured in a package.json file for example.
 * Update style on documentation in general.
