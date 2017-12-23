@@ -19,9 +19,13 @@ const entities = new Entities()
 const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const rootPath = path.resolve(process.mainModule.filename, '..', '..')
 const cwd = process.cwd()
-const utils = require('./utils');
 const ts = require("gulp-typescript")
 const uglify = require('gulp-uglify-es').default;
+
+const styles = require('./styles');
+const bundle = require('./bundle');
+const log = require('./utils').log;
+
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
@@ -66,7 +70,7 @@ exports.compileBundle = function compile() {
             return g[1].toUpperCase(); 
         }).replace(/\.ts/, '');
 
-        utils.compileBundle({
+        bundle.compileBundle({
             file: file,
             format: 'iife',
             type: 'bundle',
@@ -82,7 +86,7 @@ exports.compileBundle = function compile() {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
-        console.log(chalk`{green Finished compiling ${input.path}}`)
+        log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
 }
@@ -92,14 +96,14 @@ exports.compileRaw = function compile() {
     .pipe(sourcemaps.init())
     .pipe(through.obj((input, enc, cb) => {
         let file = input.clone();
-        file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
+        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
         cb(null, file)
     }))
     .pipe(tsProjectRaw())
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
-        console.log(chalk`{green Finished compiling ${input.path}}`)
+        log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
 }
@@ -109,7 +113,7 @@ exports.compileModule = function compile() {
     .pipe(sourcemaps.init())
     .pipe(through.obj((input, enc, cb) => {
         let file = input.clone();
-        file.contents = new Buffer(utils.injectStyle({code: file.contents.toString()}));
+        file.contents = new Buffer(styles.injectStyle({code: file.contents.toString()}));
         cb(null, file)
     }))
     .pipe(through.obj((input, enc, cb) => {
@@ -119,7 +123,7 @@ exports.compileModule = function compile() {
             return g[1].toUpperCase(); 
         });
 
-        utils.compileBundle({
+        bundle.compileBundle({
             file: file,
             format: 'umd',
             type: 'module',
@@ -135,7 +139,7 @@ exports.compileModule = function compile() {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist/lib'))
     .pipe(through.obj((input, enc, cb) => {
-        console.log(chalk`{green Finished compiling ${input.path}}`)
+        log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
 }
@@ -144,7 +148,7 @@ exports.copyReadmeFiles = function copyReadmeFiles() {
     return gulp.src(`${cwd}/src/**/*.md`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
         .pipe(through.obj((input, enc, cb) => {
-            console.log(chalk`{green ${input.path} is successfully copied}`)
+            log(`${input.path} successfully copied`, 2, 'Documentation');
             cb(null, input)
         }))
 }
@@ -153,7 +157,7 @@ exports.copyPackageFiles = function copyReadmeFiles() {
     return gulp.src(`${cwd}/src/**/package.json`)
         .pipe(gulp.dest(`${cwd}/dist/lib`))
         .pipe(through.obj((input, enc, cb) => {
-            console.log(chalk`{green ${input.path} is successfully copied}`)
+            log(`${input.path} successfully copied`, 2, 'Compile');
             cb(null, input)
         }))
 }
@@ -208,7 +212,7 @@ exports.compileDemos = function compileDemos() {
                 file.path = newPath;
 
                 cb(null, file);
-            }).catch(err => {console.log(err)})
+            }).catch(err => {log(`Error: ${err}`, 4, 'Bundle')})
         }))
         .pipe(inject(gulp.src([`${rootPath}/templates/**/*.scss`], {
             cwd: `${rootPath}/templates/`
@@ -229,7 +233,7 @@ exports.compileDemos = function compileDemos() {
             fs.ensureDirSync(path.parse(input.path).dir)
             fs.writeFile(input.path, input.contents, (err) => {
                 if (err) {
-                    console.log(err);
+                    log(`Error: ${err}`, 4, 'Documentation');
                 }
             });
             cb(null, input)
@@ -297,7 +301,7 @@ exports.compileDemoIndex = function compileDemoIndex() {
         const docs = await getDocsPaths();
         const componentConfigs = await parseReadme(components)
         const docsConfigs = await parseReadme(docs).catch(err => {
-            console.log(err)
+            log(`Error: ${err}`, 4, 'Documentation');
         })
         
         return {
