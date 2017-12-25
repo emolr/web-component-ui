@@ -17,6 +17,7 @@ exports.gulpBundle = function(options) {
     }, options)
 
     return through.obj(function(file, encoding, callback) {
+        // console.log(file.contents.toString())
         const outputPath = file.path.replace(/\.ts/, `.${opts.type}.js`)
         const name = path.parse(file.path).name.replace(/-([a-z])/g, (g) => { 
             return g[1].toUpperCase(); 
@@ -45,6 +46,7 @@ exports.gulpBundle = function(options) {
                 sourcemap: opts.sourceMap
             }).then(code => {
                 code.map.file = outputPath;
+                file.originalPath = file.path;
                 file.path = outputPath;
                 file.contents = new Buffer(code.code)
                 applySourceMap(file, code.map)

@@ -24,12 +24,19 @@ const uglify = require('gulp-uglify-es').default;
 const log = require('./utils').log;
 const gulpSassInject = require('./gulp-sass-inject').gulpSassInject
 const gulpBundle = require('./gulp-bundle').gulpBundle
+const applyToStylesMap = require('./utils').applyToStylesMap
+const updateTimestampFromStylesMap = require('./utils').updateTimestampFromStylesMap
+const watch = require('gulp-watch')
+const newer = require('gulp-newer');
 const tsProjectRaw = ts.createProject({
     target: "es6",
     lib: ["es5", "es6", "dom", "es7", "esnext"],
     experimentalDecorators: true,
     moduleResolution: 'node'
 })
+const tsSource = `${cwd}/src/**/!(*.spec)*.ts`
+const tsDist = 'dist/lib'
+let stylesMap = {};
 
 // add handlebars helpers
 handlebars.registerHelper('list', function(items, options) {
@@ -48,8 +55,20 @@ exports.clean = function clean() {
     })
 }
 
+exports.triggerCompileFromScss = function trigger() {
+    return watch(`${cwd}/src/**/*.scss`, { ignoreInitial: true })
+    .pipe(through.obj((input, enc, cb) => {
+        updateTimestampFromStylesMap(input, stylesMap)
+        cb(null, input)
+    }))
+}
+
 exports.compileBundle = function compile() {
-    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    return gulp.src(tsSource)
+    .pipe(newer({
+        dest: tsDist,
+        ext: '.js'
+    }))
     .pipe(sourcemaps.init())
     .pipe(gulpBundle())
     .pipe(gulpSassInject())
@@ -58,28 +77,38 @@ exports.compileBundle = function compile() {
         compress: true
     }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('dist/lib'))
+    .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
+        applyToStylesMap(input, stylesMap)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
 }
 
 exports.compileRaw = function compile() {
-    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    return gulp.src(tsSource)
+    .pipe(newer({
+        dest: tsDist,
+        ext: '.js'
+    }))
     .pipe(sourcemaps.init())
     .pipe(tsProjectRaw())
     .pipe(gulpSassInject())
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('dist/lib'))
+    .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
+        applyToStylesMap(input, stylesMap)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
 }
 
 exports.compileModule = function compile() {
-    return gulp.src(`${cwd}/src/**/!(*.spec)*.ts`)
+    return gulp.src(tsSource)
+    .pipe(newer({
+        dest: tsDist,
+        ext: '.js'
+    }))
     .pipe(sourcemaps.init())
     .pipe(gulpBundle({
         format: 'umd',
@@ -92,8 +121,9 @@ exports.compileModule = function compile() {
         compress: true
     }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('dist/lib'))
+    .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
+        applyToStylesMap(input, stylesMap)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
