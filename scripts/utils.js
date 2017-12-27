@@ -1,5 +1,6 @@
 const chalk = require("chalk");
 const log = console.log;
+const fs = require('fs-extra')
 
 const LOGGER_SEVERITIES = {
     normal: chalk.white, // "default"

@@ -13,19 +13,23 @@ exports.run = function(opts) {
 
     gulp.task('compile:raw', tasks.compileRaw);
     gulp.task('compile:bundle', tasks.compileBundle);
-
     gulp.task('compile:module', tasks.compileModule);
     gulp.task('compile:demos', tasks.compileDemos);
     gulp.task('compile:demo-index', tasks.compileDemoIndex);
+    gulp.task('scss:trigger', tasks.triggerCompileFromScss);
+    
 
     gulp.task('watch:documentation', () => {
         gulp.watch(`${cwd}/**/*.md`, ['copy:readme', 'compile:demos', 'compile:demo-index'])
         gulp.watch(`${rootPath}/templates/**/*.hbs`, ['compile:demos', 'compile:demo-index'])
         gulp.watch(`${rootPath}/templates/**/*.scss`, ['compile:demos', 'compile:demo-index'])
     });
+
     gulp.task('watch:build', () => {
-        gulp.watch([`${cwd}/src/**/*.scss`, `${cwd}/src/**/!(*.spec)*.ts`], ['compile']);
+        gulp.watch([`${cwd}/src/**/!(*.spec)*.ts`], ['compile']);
+        gulp.watch([`${cwd}/src/**/*.scss`], ['scss:trigger']); 
     });
+
     gulp.task('watch:both', ['watch:build', 'watch:documentation']);
 
     gulp.task('documentation', ['copy:readme', 'compile:demos', 'compile:demo-index'])
