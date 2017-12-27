@@ -7,6 +7,8 @@ const path = require('path')
 const fs = require('fs-extra')
 const applySourceMap = require('vinyl-sourcemaps-apply');
 const applyStylePath = require('./utils').applyStylePath
+const StylesMap = require('./services/styles-map.service');
+const stylesMap = new StylesMap();
 
 exports.gulpSassInject = function(options) {
     const opts = Object.assign({
@@ -36,7 +38,7 @@ exports.gulpSassInject = function(options) {
                     css: postcss(postcssOptions).process(compiledStyle.css.toString()).css
                 }
 
-                applyStylePath(file, fullFilepath)
+                stylesMap.applyStylePath(file, fullFilepath)
 
                 return code.css
 

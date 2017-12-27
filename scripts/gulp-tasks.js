@@ -36,7 +36,9 @@ const tsProjectRaw = ts.createProject({
 })
 const tsSource = `${cwd}/src/**/!(*.spec)*.ts`
 const tsDist = 'dist/lib'
-let stylesMap = {};
+// let stylesMap = {};
+const StylesMap = require('./services/styles-map.service');
+const stylesMap = new StylesMap();
 
 // add handlebars helpers
 handlebars.registerHelper('list', function(items, options) {
@@ -58,7 +60,7 @@ exports.clean = function clean() {
 exports.triggerCompileFromScss = function trigger() {
     return watch(`${cwd}/src/**/*.scss`, { ignoreInitial: true })
     .pipe(through.obj((input, enc, cb) => {
-        updateTimestampFromStylesMap(input, stylesMap)
+        stylesMap.updateTimestampFromStylesMap(input)
         cb(null, input)
     }))
 }
@@ -79,7 +81,7 @@ exports.compileBundle = function compile() {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
-        applyToStylesMap(input, stylesMap)
+        stylesMap.applyToStylesMap(input)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
@@ -97,7 +99,7 @@ exports.compileRaw = function compile() {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
-        applyToStylesMap(input, stylesMap)
+        stylesMap.applyToStylesMap(input)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
@@ -123,7 +125,7 @@ exports.compileModule = function compile() {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(tsDist))
     .pipe(through.obj((input, enc, cb) => {
-        applyToStylesMap(input, stylesMap)
+        stylesMap.applyToStylesMap(input)
         log(`Finished compiling ${input.path}`, 2, 'Compile');
         cb(null, input)
     }))
