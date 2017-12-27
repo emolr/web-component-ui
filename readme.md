@@ -125,7 +125,7 @@ const template = `
 `
 ```
 
-_The scss file path needs to be absolute from project root._
+_The scss file path needs to be absolute from project root and can only take a single scss file per component._
 
 ### Create a component library
 Because roll-up is used in the background, just make any `.ts` file where you import all the components you would like to bundle in a library and it will generate a bundle with all components as well and each component individually. 
