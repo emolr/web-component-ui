@@ -5,29 +5,30 @@ const autoprefixer = require('autoprefixer')
 const postcssOptions = [ autoprefixer({ browsers: ['last 2 versions'] }) ]
 const path = require('path')
 const fs = require('fs-extra')
-const applySourceMap = require('vinyl-sourcemaps-apply');
 const applyStylePath = require('./utils').applyStylePath
 const StylesMap = require('./services/styles-map.service');
 const stylesMap = new StylesMap();
 
-exports.gulpSassInject = function(options) {
+module.exports = function(options) {
     const opts = Object.assign({
         sourceMap: true,
         outputStyle: 'expanded',
-        postcssOptions: postcssOptions
+        postcssOptions: postcssOptions,
+        cwd: process.cwd(),
+        includePath: process.cwd()
     }, options)
 
     return through.obj(function(file, encoding, callback) {
         file.contents = new Buffer(file.contents.toString().replace(/@style\('([^]*?)'\)/g, (match, filepath) => {
             try {
-                const fullFilepath = path.resolve(`${process.cwd()}/${filepath}`)
+                const fullFilepath = path.resolve(`${opts.cwd}/${filepath}`)
                 const style = fs.readFileSync(fullFilepath, {encoding: 'utf8'})
 
                 const compiledStyle = sass.renderSync({
                     data: style,
                     outputStyle: opts.outputStyle,
                     file: filepath,
-                    includePaths: [ path.resolve(process.cwd()) ],
+                    includePaths: [ path.resolve(opts.includePath) ],
                     sourceMap: opts.sourceMap,
                     sourceMapEmbed: opts.sourceMap,
                     sourceMapContents: opts.sourceMap,

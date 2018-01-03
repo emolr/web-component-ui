@@ -35,7 +35,7 @@ class StylesMap {
     /**
      * Apply styles path to vinyl stream file
      * 
-     * @param {vinylStreamFile} file - A viny stream file.
+     * @param {vinylStreamFile} file - A vinyl stream file.
      * @param {string} path - path to original scss/css file.
      */
     applyStylePath(file, path) {

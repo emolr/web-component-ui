@@ -7,7 +7,7 @@ const rollupTypescript = require('rollup-plugin-typescript');
 const typescript = require('typescript')
 const rollupResolve = require("rollup-plugin-node-resolve");
 const commonjs = require("rollup-plugin-commonjs");
-const chalk = require("chalk")
+const log = require('./utils').log;
 
 exports.gulpBundle = function(options) {
     const opts = Object.assign({
@@ -17,7 +17,6 @@ exports.gulpBundle = function(options) {
     }, options)
 
     return through.obj(function(file, encoding, callback) {
-        // console.log(file.contents.toString())
         const outputPath = file.path.replace(/\.ts/, `.${opts.type}.js`)
         const name = path.parse(file.path).name.replace(/-([a-z])/g, (g) => { 
             return g[1].toUpperCase(); 
@@ -53,7 +52,7 @@ exports.gulpBundle = function(options) {
                 callback(null, file);
             });
         }).catch(err => {
-            console.log(chalk`{red ${err}}`)
+            log(`Error: ${err}`, 4, 'Bundle')
             callback(null, file);
         })
       });

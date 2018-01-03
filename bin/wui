@@ -5,6 +5,7 @@ const runner = require('../runner');
 
 const cwd = process.cwd();
 const gulp = runner.gulp.run({directory: cwd});
+const documentation = runner.documentation;
 const pkg = require('../package.json');
 
 const log = require('../scripts/utils').log;
@@ -14,14 +15,16 @@ program
 
 program
     .command('build')
-    .description('Compiles and packages your webcomponent ready to be released on NPM')
-    .option('-d, --documentation', 'Generate demo + documentation files')
+    .description('compiles and packages your webcomponent ready to be released on NPM')
+    .option('-s, --styleguide', 'creates styleguide assets like index.json and a index page')
     .action(build);
 
 program
     .command('start')
-    .description('Watch for changes and rebuild demo + documentation')
-    .option('-o, --open', 'Opens the URL in default browser')
+    .description('Watch for changes')
+    .option('-o, --open', 'opens the URL in default browser')
+    .option('-s, --styleguide', 'creates styleguide assets like index.json and a index page')
+    .option('-e, --entry <path>', 'relative path to component typescript file, this will be used for creating a browser index')
     .action(start);
 
 program.parse(process.argv);
@@ -32,21 +35,34 @@ if(program.args.length < 1) {
 
 function build(options) {
     log('Compiling...', 1, 'Build');
-    gulp.compileComponent(options)
+    gulp.compile(options)
         .then(() => {
-            if(options.documentation) {
-                log('Generating documentation...', 1, 'Build');
-                return gulp.compileDocumentation();
+            if (options.styleguide) {
+                documentation.createIndex();
             }
         })
-        .catch((err) => log('Error: ', 4, 'Build'));
+        .then(() => {
+            if (options.styleguide) {
+                log('Generating overview', 1, 'Start');
+                return documentation.createOverview();
+            }
+        })
+        .catch((err) => log(`Error: ${err}`, 4, 'Build'));
 }
 function start(options) {
     log('Compiling...', 1, 'Start');
-    gulp.compileComponent()
+    gulp.compile()
         .then(() => {
-            log('Generating docuentation...', 1, 'Start');
-            return gulp.compileDocumentation();
+            if (options.styleguide) {
+                log('Generating sitemap', 1, 'Start');
+                return documentation.createIndex();
+            }
+        })
+        .then(() => {
+            if (options.styleguide) {
+                log('Generating overview', 1, 'Start');
+                return documentation.createOverview();
+            }
         })
         .then(() => {
             log('Watching for changes...', 1, 'Start');
@@ -55,8 +71,12 @@ function start(options) {
         .then(() => {
             if(options.open) {
                 log('Starting BrowserSync...', 1, 'Start');
-                runner.bs.init(cwd);
+                if (!options.styleguide && options.entry) {
+                    runner.bs.init(cwd, options.entry);
+                } else {
+                    runner.bs.init(cwd);
+                }
             }
         })
-        .catch((err) => log('Error: ', 4, 'Start'));
+        .catch((err) => log(`Error: ${err}`, 4, 'Start'));
 }
