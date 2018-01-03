@@ -23,7 +23,7 @@ program
     .command('start')
     .description('Watch for changes')
     .option('-o, --open', 'opens the URL in default browser')
-    .option('-e, --entry <path>', 'relative path to component typescript file, this will be used for creating a browser index')
+    .option('-e, --entry <path>', 'relative path to component .md file, this will be used for creating a browser index')
     .action(start);
 
 program.parse(process.argv);
