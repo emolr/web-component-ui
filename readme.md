@@ -96,8 +96,7 @@ In markdown write:
   &lt;/template&gt;
 &lt;/custom-element-demo&gt;
 ```
---&gt;
-<span>
+--&gt;<span>
 ```html
 &lt;my-component&gt;&lt;/my-component&gt;
 ```
