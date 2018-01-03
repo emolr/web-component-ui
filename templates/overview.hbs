@@ -10,16 +10,24 @@
 </head>
 <body>
     <script>
-        fetch('/index.json').then(res => {
-            res.json().then(res => {
-                const tree = document.createElement('dom-tree');
-                tree.items = res.pages;
-                tree.isHref = true;
-                tree.pathKey = 'pathHTML';
-                tree.titleKey = 'title';
-                document.body.appendChild(tree)
+        const tree = document.createElement('dom-tree');
+        tree.querySelectorAll('a').forEach(link => {
+            e.addEventListener('click', e => {
+                e.preventDefault;
+                e.stopPropagation();
+                console.log(e)
+                return false;
             })
         })
+
+        fetch('/index.json').then(res => res.json())
+        .then(res => {
+            tree.items = res.pages;
+            tree.isHref = true;
+            tree.pathKey = 'pathHTML';
+            tree.titleKey = 'title';
+            document.body.appendChild(tree)
+        });
     </script>
 </body>
 </html>

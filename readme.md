@@ -1,29 +1,17 @@
-# Web Component UI / $ WUI
-A CLI tool for compiling Web Components and generating documentation.
+# Web Component UI
+Web Component UI is a dead simple reusable web component compiler and documentation tool.
 
-This is a build tool that enables the possibilities of building web components in any style you'd like, using [Typescript](https://www.typescriptlang.org/) and [SASS](http://www.sass-lang.com/) where the output is readable code in vanillaJS, bundled, and modulized ready for tree-shaking when used in project having their own build system.
+### Simple
+Tiny tooling, non-opinionated, zero configuration, Typescript and SASS support with no overhead.
 
-## Generates component documentation from markdown
-This CLI includes a feature to build documentation from makrdown files located in component folders. It will automatically build an index page with a navigation and a single documentation page per component.
+### Integration ready
+Compiles into UMD, bundle and clean vanillaJS automatically.
 
-## Generates additional documentation
-When building a UI library often it's a good idea to explain voice and tone, and design princibles etc...
-Placing markdown files in a folder called `docs` will convert these files as well.
-
-## Why did I start this project? 
-
-Because I love the idea behind web components, it holds the prospect of being the way to build long lasting and maintainable UI, and with frameworks like skateJS, Polymer and StencilJS it's seems to be going really well for web components.
-
-But all frameworks adds some level of technical depth, and while this can be worth it depending on the project, `wui` is only a compiler tool that leaves no other than the code you choose while providing a great developer experience with typescript and SASS, generate a living styleguide and at the same time let you use any frameworks you'd like or go all vanillaJS.
-
-What I've learned is that there are no correct way to write web components. They can be shaped for the system they are meant for. A web component meant to be consumed in a pre-compiles JS system may work very differently from a component used in Drupal with no JS pre-compilation (JS-SSR).
+### Shareable
+Compiles Markdown into static HTML and JSON, with live examples.
 
 
 ## Getting started
-
-The easiest would be to use WUI as a global CLI tool, but it can also be installed in the project and be run with npm `"build": "node node_modules/web-component-ui/bin/wui build -d"` as an example.
-`"start": "node node_modules/web-component-ui/bin/wui start -o"` as an example.
-
 
 ### Install the CLI
 
@@ -31,139 +19,118 @@ The easiest would be to use WUI as a global CLI tool, but it can also be install
 $ npm install -g web-component-ui
 ```
 
-`wui` is now available globally.
-
-
-### Use the CLI
-
-In a project that looks like this:
+### Create a project
 
 ```
 project/
-├── src/
-│   └── yourElement
-│       ├── yourElement.scss
-│       ├── yourElement.ts
-│       ├── package.json
-│       └── readme.md
+├── my-component.ts
+├── my-component.scss
+└── readme.md
+
 ```
 
 From the project root run:
 
 ```
-$ wui build -d
+$ wui build
 ```
 
-This will generate a dist folder like this:
+This will generate:
 
 ```
 project/
 ├── dist
-│   ├── lib
-│   │   └── yourElement
-│   │       ├── yourElement.html // Demo file
-│   │       ├── yourElement.js // unresolved es6
-│   │       ├── yourElement.js.map // SourceMap
-│   │       ├── yourElement.bundle.js // es2015 IIFE with resolved dependencies using roll-up
-│   │       ├── yourElement.bundle.js.map // SourceMap
-│   │       ├── yourElement.module.js // UMD module to use with module bundlers
-│   │       ├── yourElement.module.js.map // SourceMap
-│   │       ├── package.json // List component dependencies and point to yourElement.module.js as main.
-│   │       └── readme.md // The original readme file
-│   └── demo.html
-│
-├── youElement/
-│   ├── yourElement.scss
-│   ├── yourElement.ts
-│   ├── package.json
-│   └── readme.md
+│   ├── my-component.html // Demo file
+│   ├── my-component.js // es6
+│   ├── my-component.js.map // sourcemap
+│   ├── my-component.bundle.js // Rollup IIFE es2015 bundle
+│   ├── my-component.bundle.js.map // Bundle sourcemap
+│   ├── my-component.module.js // UMD module
+│   ├── my-component.module.js.map // Module sourcemap
+│   └── readme.md // Copied readme.md
+├── my-component.ts
+├── my-component.scss
+└── readme.md
 ```
 
 ### CLI options
 
-`wui` comes with a set of handy options:
+| Command      | Option            | Description                                                            |
+|--------------|-------------------|------------------------------------------------------------------------|
+| `wui build`  |                   | Compiles all files in project folder.                                  |
+| `wui build`  | -s, --styleguide  | Generates a index.html with a navigation to all component demos        |
 
-| Option      | Description                                                            |
-|-------------|------------------------------------------------------------------------|
-| -d, --documentation  | Generates a living styleguide from the `.md` files (available on `wui build`, default on `wui start`) |
-| -o, --open  | Opens the documentation in the default browser (available on `wui start`) |
+| Command      | Option            | Description                                                            |
+|--------------|-------------------|------------------------------------------------------------------------|
+| `wui start`  |                   | Compiles and watches for file changes                                  |
+| `wui start`  | -o, --open        | Opens styleguide in the default browser                                |
+| `wui start`  | -e, --entry `path_to.md` | Opens styleguide for referenced styleguide file                 |
 
-Using the command like this to build:
 
-```
-$ wui build -d
-```
+### Inline CSS from SASS in component
 
-or wathing changes like this:
-
-```
-$ wui start -o
-```
-
-Start will automatically open the documentation and autoreload on changes in `/src/**/*`. This makes it into a sandbox environtment for developing the components standalone.
-
-NB!<br>
-The demo index view is in a very early stage, so reloading causes it to reload to the project root readme.md so when working on a single component, right click on the component name in the demo navigation and open in new tab for a better developing experience.
-
-### Using sass for components
-
-To inject sass / css into the component `<style></style>` tag, just add a style decorator where you would like the css to be placed like this and it will be compiled and prefixed to the 2 latest browser versions.
-It's important that it's inside a template literal string so it won't be confused with a javascript decorator.
-
-```
-@style('projectroot/src/path/to/component/component.scss')
-```
-
-For example it would look like this in the component:
+In a `<style>` tag, make an absolute path reference to sass file:
 
 ```
 const template = `
     <style>
-        @style('src/myComponent/myComponent.scss')
+        @style('project/my-component.scss')
     </style>
-    ...
 `
 ```
 
-_The scss file path needs to be absolute from project root and can only take a single scss file per component._
+_SASS compiles into autoprefixed CSS 2 browser versions behind based on caniuse_
 
-### Create a component library
-Because roll-up is used in the background, just make any `.ts` file where you import all the components you would like to bundle in a library and it will generate a bundle with all components as well and each component individually. 
+### Component styleguide
+wui compiles all `.md` into HTML and JSON, not limited to components and follows the directory structure.
 
-For example a file called `src/myLib.ts`:
+#### Inline component demo
+In markdown write:
+
+<pre>&lt;!--
 ```
-import './myComponent/myComponent'
-import './myOtherComponent/myOtherComponent'
+&lt;custom-element-demo&gt;
+  &lt;template&gt;
+    <span>&lt;script src="my-component.bundle.js"&gt;</span>
+    <span>&lt;next-code-block&gt;&lt;/next-code-block&gt;</span>
+  &lt;/template&gt;
+&lt;/custom-element-demo&gt;
+```
+--&gt;
+<span>
+```html
+&lt;my-component&gt;&lt;/my-component&gt;
+```
+</span></pre>
+
+> Paths should be relative from the files location in dist folder.
+
+> All code in `<template>...</template>` will execute on demo page load.
+
+### Make a web component library
+If you have a project like this, make a single `my-component-libary.ts` file that imports the other components and the compiler compiles it into UMD, bundle and es2015:
+
+```
+project/
+├── my-component-libary.ts
+└── components
+    ├── my-component
+    │   ├── my-component.ts
+    │   ├── my-component.scss
+    │   └── my-component.md
+    └── my-other-component
+        ├── my-other-component.ts
+        └── my-other-component.md
 ```
 
-This will generate `dist/myLib.js` && `dist/myLib.bundle.js` &&  `dist/myLib.module.js` containing the collection of components.
+In `my-component-libary.ts`:
 
-### How to write documentation
+```typescript
+@import './components/my-component/my-component.js';
+@import './components/my-other-component/my-other-component.js';
+```
 
-#### For a component
-
-In a component folder eg. `/src/element/` add a `.md` file. (The `.md` filename can be called what you would like).
-
-In `/src/element/element.md` write a title `# my component` (this will be used as component title in demo navigation)
-
-And write what you would like (in markdown).
-
-##### Create a inline demo in the component Markdown file.
-
-To create a inline demo you need to modify the `/src/element/element.md` file and add:
-
-![alt text](http://res.cloudinary.com/histudios/image/upload/v1511939930/Screen_Shot_2017-11-29_at_08.18.24_qio7iy.png "inline demo snippet")
-
-You can create as many inline demo's as you like in a single `.md` file.
-
-You can link to any file inside the `<template>` meaning that you can create complex demos with multiple components in the library or with scripts loaded from a cdn.
-
-!NB<br>
-When linking to component files in the `.md` file, paths should be relative to the js file you'd like to load from it's position in the dist folder.
-
-#### Additional documentation
-
-Add any markdown files in a docs folder, and it will generate those pages as well.
+_When referencing to component files use ending `.js` so it works with native modules loading in supported browsers_
 
 ## Can you help?
 
@@ -181,5 +148,3 @@ For development, you can use this demo project that uses all the features of the
 * Make the documentation pages themable and add features reading from package.json. Like add a git link if git has been configured in a package.json file for example.
 * Update style on documentation in general.
 * Have tests on this codebase.
-
-The only requirement for the features in the future is that the generated web component code is clean readable vanilla JS including css so they can live long and prosper.

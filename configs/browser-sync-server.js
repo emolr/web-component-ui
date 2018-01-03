@@ -4,7 +4,7 @@ exports.init = function(cwd, index) {
     let startIndex = `demo.html`;
     
     if (index) {
-        startIndex = index.replace(/.ts/, '.html')
+        startIndex = index.replace(/.md/, '.html')
     }
 
     setTimeout(() => {

@@ -23,7 +23,6 @@ program
     .command('start')
     .description('Watch for changes')
     .option('-o, --open', 'opens the URL in default browser')
-    .option('-s, --styleguide', 'creates styleguide assets like index.json and a index page')
     .option('-e, --entry <path>', 'relative path to component typescript file, this will be used for creating a browser index')
     .action(start);
 
@@ -53,16 +52,12 @@ function start(options) {
     log('Compiling...', 1, 'Start');
     gulp.compile()
         .then(() => {
-            if (options.styleguide) {
-                log('Generating sitemap', 1, 'Start');
-                return documentation.createIndex();
-            }
+            log('Generating sitemap', 1, 'Start');
+            return documentation.createIndex();
         })
         .then(() => {
-            if (options.styleguide) {
-                log('Generating overview', 1, 'Start');
-                return documentation.createOverview();
-            }
+            log('Generating overview', 1, 'Start');
+            return documentation.createOverview();
         })
         .then(() => {
             log('Watching for changes...', 1, 'Start');
