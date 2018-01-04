@@ -26,7 +26,6 @@ project/
 ├── my-component.ts
 ├── my-component.scss
 └── readme.md
-
 ```
 
 From the project root run:
