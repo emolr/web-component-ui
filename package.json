@@ -7,9 +7,12 @@
     "wui": "./bin/wui"
   },
   "scripts": {
-    "prettier": "node node_modules/prettier/bin/prettier.js --write bin/wui **/*.js",
+    "prettier": "node node_modules/prettier/bin/prettier.js --write bin/wui **/*.js && git add . && git status",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "pre-commit": [
+    "prettier"
+  ],
   "author": {
     "name": "Emil Rune Møller",
     "email": "emilrmoeller@gmail.com",
@@ -40,6 +43,7 @@
     "html-entities": "^1.2.1",
     "node-sass": "^4.5.3",
     "postcss": "^6.0.13",
+    "pre-commit": "^1.2.2",
     "prettier": "^1.9.2",
     "rollup": "^0.52.1",
     "rollup-plugin-commonjs": "^8.2.6",
