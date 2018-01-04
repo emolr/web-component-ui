@@ -1,18 +1,18 @@
-const chalk = require("chalk");
+const chalk = require('chalk');
 const log = console.log;
-const fs = require('fs-extra')
+const fs = require('fs-extra');
 
 const LOGGER_SEVERITIES = {
     normal: chalk.white, // "default"
     info: chalk.blue, // info
     success: chalk.green, // success
     warn: chalk.yellow, // warning
-    error: chalk.red // error
+    error: chalk.red, // error
 };
 const LOGGER_SYMBOLS = {
     OK: '\u2713', // checkmark
     WARN: '\u2757', // heavy exclamation mark
-    FAIL: '\u2717' // cross
+    FAIL: '\u2717', // cross
 };
 
 /**
@@ -26,9 +26,7 @@ const LOGGER_SYMBOLS = {
  * @param {string} [context] - The context of the message, ie "watch"
  */
 exports.log = (message, severity = 0, context) => {
-    const ctx = [
-        context ? `[${context}]` : ''
-    ];
+    const ctx = [context ? `[${context}]` : ''];
     switch (severity) {
         case 1: {
             log(LOGGER_SEVERITIES.info(`${ctx} ${message}`));

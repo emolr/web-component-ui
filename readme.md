@@ -41,6 +41,7 @@ This will generate:
 project/
 ├── dist
 │   ├── my-component.html // Demo file
+│   ├── my-component.json // Parsed markdown in json (including frontmatter keys)
 │   ├── my-component.js // es6
 │   ├── my-component.js.map // sourcemap
 │   ├── my-component.bundle.js // Rollup IIFE es2015 bundle

@@ -4,14 +4,13 @@ const program = require('commander');
 const runner = require('../runner');
 
 const cwd = process.cwd();
-const gulp = runner.gulp.run({directory: cwd});
+const gulp = runner.gulp.run({ directory: cwd });
 const documentation = runner.documentation;
 const pkg = require('../package.json');
 
 const log = require('../scripts/utils').log;
 
-program
-    .version(pkg.version || 'N/A');
+program.version(pkg.version || 'N/A');
 
 program
     .command('build')
@@ -23,18 +22,22 @@ program
     .command('start')
     .description('Watch for changes')
     .option('-o, --open', 'opens the URL in default browser')
-    .option('-e, --entry <path>', 'relative path to component .md file, this will be used for creating a browser index')
+    .option(
+        '-e, --entry <path>',
+        'relative path to component .md file, this will be used for creating a browser index',
+    )
     .action(start);
 
 program.parse(process.argv);
 
-if(program.args.length < 1) {
+if (program.args.length < 1) {
     program.outputHelp();
 }
 
 function build(options) {
     log('Compiling...', 1, 'Build');
-    gulp.compile(options)
+    gulp
+        .compile(options)
         .then(() => {
             if (options.styleguide) {
                 documentation.createIndex();
@@ -46,11 +49,12 @@ function build(options) {
                 return documentation.createOverview();
             }
         })
-        .catch((err) => log(`Error: ${err}`, 4, 'Build'));
+        .catch(err => log(`Error: ${err}`, 4, 'Build'));
 }
 function start(options) {
     log('Compiling...', 1, 'Start');
-    gulp.compile()
+    gulp
+        .compile()
         .then(() => {
             log('Generating sitemap', 1, 'Start');
             return documentation.createIndex();
@@ -64,7 +68,7 @@ function start(options) {
             return gulp.watch();
         })
         .then(() => {
-            if(options.open) {
+            if (options.open) {
                 log('Starting BrowserSync...', 1, 'Start');
                 if (!options.styleguide && options.entry) {
                     runner.bs.init(cwd, options.entry);
@@ -73,5 +77,5 @@ function start(options) {
                 }
             }
         })
-        .catch((err) => log(`Error: ${err}`, 4, 'Start'));
+        .catch(err => log(`Error: ${err}`, 4, 'Start'));
 }
